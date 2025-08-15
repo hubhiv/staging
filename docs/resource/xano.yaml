@@ -1,0 +1,2795 @@
+openapi: 3.0.0
+info:
+  title: Xano API - Authentication & Home Management
+  description: "Combined API for authentication and home management services"
+  version: 0.0.1
+servers:
+  - url: https://x8gd-ip42-19oh.n7e.xano.io/api:9dYqAX_u
+    description: Authentication API
+  - url: https://x8gd-ip42-19oh.n7e.xano.io/api:vUhMdCxR
+    description: Home Management API
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas: {}
+paths:
+  /auth/login:
+    post:
+      summary: Login and retrieve an authentication token
+      description: |
+        Login and retrieve an authentication token
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - auth
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authToken:
+                    type: string
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: ""
+                  format: email
+                password:
+                  type: string
+                  description: ""
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: ""
+                  format: email
+                password:
+                  type: string
+                  description: ""
+  /auth/me:
+    get:
+      summary: Get the user record belonging to the authentication token
+      description: |
+        Get the user record belonging to the authentication token
+        <br /><br />
+        <b>Authentication:</b> required
+      tags:
+        - auth
+      security:
+        - bearerAuth: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: now
+                  name:
+                    type: string
+                    description: ""
+                  email:
+                    type: string
+                    description: ""
+                    format: email
+                    nullable: true
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+  /auth/signup:
+    post:
+      summary: Signup and retrieve an authentication token
+      description: |
+        Signup and retrieve an authentication token
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - auth
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authToken:
+                    type: string
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ""
+                email:
+                  type: string
+                  description: ""
+                  format: email
+                password:
+                  type: string
+                  description: ""
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: ""
+                email:
+                  type: string
+                  description: ""
+                  format: email
+                password:
+                  type: string
+                  description: ""
+  /calendar_event/{calendar_event_id}:
+    delete:
+      summary: Delete calendar_event record.
+      description: |
+        Delete calendar_event record.
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - calendar_event
+      security: []
+      parameters:
+        - name: calendar_event_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    get:
+      summary: Get calendar_event record
+      description: |
+        Get calendar_event record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - calendar_event
+      security: []
+      parameters:
+        - name: calendar_event_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: now
+                  title:
+                    type: string
+                    description: ""
+                  start:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                  end:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                  status:
+                    type: string
+                    description: ""
+                  all_day:
+                    type: boolean
+                    description: ""
+                    default: false
+                  provider_id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  task_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    patch:
+      summary: Edit calendar_event record
+      description: |
+        Edit calendar_event record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - calendar_event
+      security: []
+      parameters:
+        - name: calendar_event_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: now
+                  title:
+                    type: string
+                    description: ""
+                  start:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                  end:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                  status:
+                    type: string
+                    description: ""
+                  all_day:
+                    type: boolean
+                    description: ""
+                    default: false
+                  provider_id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  task_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: ""
+                start:
+                  type: number
+                  format: timestamptz
+                  description: ""
+                end:
+                  type: number
+                  format: timestamptz
+                  description: ""
+                status:
+                  type: string
+                  description: ""
+                all_day:
+                  type: boolean
+                  description: ""
+                  default: false
+                provider_id:
+                  type: integer
+                  format: int64
+                  description: ""
+                task_id:
+                  type: integer
+                  format: int64
+                  description: ""
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: ""
+                start:
+                  type: number
+                  format: timestamptz
+                  description: ""
+                end:
+                  type: number
+                  format: timestamptz
+                  description: ""
+                status:
+                  type: string
+                  description: ""
+                all_day:
+                  type: boolean
+                  description: ""
+                  default: false
+                provider_id:
+                  type: integer
+                  format: int64
+                  description: ""
+                task_id:
+                  type: integer
+                  format: int64
+                  description: ""
+  /calendar_event:
+    get:
+      summary: Query all calendar_event records
+      description: |
+        Query all calendar_event records
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - calendar_event
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                      description: ""
+                    created_at:
+                      type: number
+                      format: timestamptz
+                      description: ""
+                      default: now
+                    title:
+                      type: string
+                      description: ""
+                    start:
+                      type: number
+                      format: timestamptz
+                      description: ""
+                    end:
+                      type: number
+                      format: timestamptz
+                      description: ""
+                    status:
+                      type: string
+                      description: ""
+                    all_day:
+                      type: boolean
+                      description: ""
+                      default: false
+                    provider_id:
+                      type: integer
+                      format: int64
+                      description: ""
+                    task_id:
+                      type: integer
+                      format: int64
+                      description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    post:
+      summary: Add calendar_event record
+      description: |
+        Add calendar_event record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - calendar_event
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: now
+                  title:
+                    type: string
+                    description: ""
+                  start:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                  end:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                  status:
+                    type: string
+                    description: ""
+                  all_day:
+                    type: boolean
+                    description: ""
+                    default: false
+                  provider_id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  task_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: ""
+                start:
+                  type: number
+                  format: timestamptz
+                  description: ""
+                end:
+                  type: number
+                  format: timestamptz
+                  description: ""
+                status:
+                  type: string
+                  description: ""
+                all_day:
+                  type: boolean
+                  description: ""
+                  default: false
+                provider_id:
+                  type: integer
+                  format: int64
+                  description: ""
+                task_id:
+                  type: integer
+                  format: int64
+                  description: ""
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: ""
+                start:
+                  type: number
+                  format: timestamptz
+                  description: ""
+                end:
+                  type: number
+                  format: timestamptz
+                  description: ""
+                status:
+                  type: string
+                  description: ""
+                all_day:
+                  type: boolean
+                  description: ""
+                  default: false
+                provider_id:
+                  type: integer
+                  format: int64
+                  description: ""
+                task_id:
+                  type: integer
+                  format: int64
+                  description: ""
+  /tasks/{userid}:
+    get:
+      summary: Get tasks for a specific user
+      description: |
+        Get all tasks assigned to a specific user
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - tasks
+      security: []
+      parameters:
+        - name: userid
+          in: path
+          description: "User ID to get tasks for"
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: assignee_id
+          in: query
+          description: "Assignee ID to filter tasks"
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: int64
+                          description: "Task ID"
+                        created_at:
+                          type: number
+                          format: timestamptz
+                          description: "Task creation timestamp"
+                        title:
+                          type: string
+                          description: "Task title"
+                        description:
+                          type: string
+                          description: "Task description"
+                        status:
+                          type: string
+                          description: "Task status"
+                          enum: ["todo", "scheduled", "booked", "complete"]
+                        priority:
+                          type: string
+                          description: "Task priority"
+                          enum: ["low", "medium", "high", "urgent"]
+                        due_date:
+                          type: number
+                          format: timestamptz
+                          description: "Task due date timestamp"
+                        comments_count:
+                          type: integer
+                          description: "Number of comments on task"
+                        attachments_count:
+                          type: integer
+                          description: "Number of attachments on task"
+                        rating:
+                          type: integer
+                          description: "Task rating (0-5)"
+                          minimum: 0
+                          maximum: 5
+                        position:
+                          type: integer
+                          description: "Task position within status column"
+                        provider_type:
+                          type: string
+                          description: "Type of service provider"
+                        assignee_id:
+                          type: integer
+                          format: int64
+                          description: "ID of assigned user"
+                        provider:
+                          type: string
+                          description: "Service provider category"
+                          enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+  /home_profile:
+    get:
+      summary: Query all home_profile records
+      description: |
+        Query all home_profile records
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_profile
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                      description: ""
+                    created_at:
+                      type: number
+                      format: timestamptz
+                      description: ""
+                      default: "now"
+                    address:
+                      type: string
+                      description: ""
+                    year_built:
+                      type: integer
+                      format: int64
+                      description: ""
+                    square_footage:
+                      type: integer
+                      format: int64
+                      description: ""
+                    bedrooms:
+                      type: integer
+                      format: int64
+                      description: ""
+                    bathrooms:
+                      type: number
+                      description: ""
+                    lot_size:
+                      type: string
+                      description: ""
+                    health_scores_overall:
+                      type: integer
+                      format: int64
+                      description: ""
+                    health_scores_hvac:
+                      type: integer
+                      format: int64
+                      description: ""
+                    health_scores_plumbing:
+                      type: integer
+                      format: int64
+                      description: ""
+                    health_scores_electrical:
+                      type: integer
+                      format: int64
+                      description: ""
+                    health_scores_exterior:
+                      type: integer
+                      format: int64
+                      description: ""
+                    health_scores_security:
+                      type: integer
+                      format: int64
+                      description: ""
+                    user_id:
+                      type: integer
+                      format: int64
+                      description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    post:
+      summary: Add home_profile record
+      description: |
+        Add home_profile record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_profile
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: "now"
+                  address:
+                    type: string
+                    description: ""
+                  year_built:
+                    type: integer
+                    format: int64
+                    description: ""
+                  square_footage:
+                    type: integer
+                    format: int64
+                    description: ""
+                  bedrooms:
+                    type: integer
+                    format: int64
+                    description: ""
+                  bathrooms:
+                    type: number
+                    description: ""
+                  lot_size:
+                    type: string
+                    description: ""
+                  health_scores_overall:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_hvac:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_plumbing:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_electrical:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_exterior:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_security:
+                    type: integer
+                    format: int64
+                    description: ""
+                  user_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: ""
+                year_built:
+                  type: integer
+                  format: int64
+                  description: ""
+                square_footage:
+                  type: integer
+                  format: int64
+                  description: ""
+                bedrooms:
+                  type: integer
+                  format: int64
+                  description: ""
+                bathrooms:
+                  type: number
+                  description: ""
+                lot_size:
+                  type: string
+                  description: ""
+                health_scores_overall:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_hvac:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_plumbing:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_electrical:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_exterior:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_security:
+                  type: integer
+                  format: int64
+                  description: ""
+                user_id:
+                  type: integer
+                  format: int64
+                  description: ""
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: ""
+                year_built:
+                  type: integer
+                  format: int64
+                  description: ""
+                square_footage:
+                  type: integer
+                  format: int64
+                  description: ""
+                bedrooms:
+                  type: integer
+                  format: int64
+                  description: ""
+                bathrooms:
+                  type: number
+                  description: ""
+                lot_size:
+                  type: string
+                  description: ""
+                health_scores_overall:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_hvac:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_plumbing:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_electrical:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_exterior:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_security:
+                  type: integer
+                  format: int64
+                  description: ""
+                user_id:
+                  type: integer
+                  format: int64
+                  description: ""
+  /home_profile/{home_profile_id}:
+    delete:
+      summary: Delete home_profile record.
+      description: |
+        Delete home_profile record.
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_profile
+      security: []
+      parameters:
+        - name: home_profile_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+  /tasks/{id}:
+    get:
+      summary: Get individual task by ID
+      description: |
+        Get a specific task by its ID
+        <br /><br />
+        <b>Authentication:</b> Bearer JWT token required
+      tags:
+        - tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: "Task ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Task retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  status:
+                    type: string
+                    enum: ["todo", "scheduled", "booked", "complete"]
+                  priority:
+                    type: string
+                    enum: ["low", "medium", "high", "urgent"]
+                  position:
+                    type: integer
+                  assignee_id:
+                    type: integer
+                    format: int64
+                  created_at:
+                    type: number
+                    format: timestamptz
+                  updated_at:
+                    type: number
+                    format: timestamptz
+                  comments_count:
+                    type: integer
+                  attachments_count:
+                    type: integer
+                  rating:
+                    type: integer
+                    minimum: 0
+                    maximum: 5
+                  provider_type:
+                    type: string
+                  provider:
+                    type: string
+                    description: "Service provider category"
+                    enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+        "401":
+          description: Authentication failed
+        "404":
+          description: Task not found
+        "500":
+          description: Server error
+    patch:
+      summary: Update task (including position and status)
+      description: |
+        Update any task properties including status and position for drag-and-drop
+        <br /><br />
+        <b>Authentication:</b> Bearer JWT token required
+      tags:
+        - tasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: "Task ID to update"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: "Task title"
+                description:
+                  type: string
+                  description: "Task description"
+                status:
+                  type: string
+                  description: "Task status"
+                  enum: ["todo", "scheduled", "booked", "complete"]
+                priority:
+                  type: string
+                  description: "Task priority"
+                  enum: ["low", "medium", "high", "urgent"]
+                position:
+                  type: integer
+                  description: "Task position within status column"
+                  minimum: 0
+                assignee_id:
+                  type: integer
+                  format: int64
+                  description: "Assigned user ID"
+                due_date:
+                  type: string
+                  format: date-time
+                  description: "Task due date"
+                provider_type:
+                  type: string
+                  description: "Service provider type"
+                provider:
+                  type: string
+                  description: "Service provider category"
+                  enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+      responses:
+        "200":
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  status:
+                    type: string
+                    enum: ["todo", "scheduled", "booked", "complete"]
+                  priority:
+                    type: string
+                    enum: ["low", "medium", "high", "urgent"]
+                  position:
+                    type: integer
+                  assignee_id:
+                    type: integer
+                    format: int64
+                  created_at:
+                    type: number
+                    format: timestamptz
+                  updated_at:
+                    type: number
+                    format: timestamptz
+                  comments_count:
+                    type: integer
+                  attachments_count:
+                    type: integer
+                  rating:
+                    type: integer
+                    minimum: 0
+                    maximum: 5
+                  provider_type:
+                    type: string
+                  provider:
+                    type: string
+                    description: "Service provider category"
+                    enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+        "400":
+          description: Invalid request data
+        "401":
+          description: Authentication failed
+        "404":
+          description: Task not found
+        "500":
+          description: Server error
+  /tasks/reorder:
+    patch:
+      summary: Bulk reorder multiple tasks
+      description: |
+        Update positions for multiple tasks in a single operation for performance optimization
+        <br /><br />
+        <b>Authentication:</b> Bearer JWT token required
+      tags:
+        - tasks
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reorder:
+                  type: array
+                  description: "Array of tasks to reorder"
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                        description: "Task ID to update"
+                      position:
+                        type: integer
+                        description: "New position for the task"
+                        minimum: 0
+                    required:
+                      - id
+                      - position
+              required:
+                - reorder
+              example:
+                reorder:
+                  - id: 37
+                    position: 10
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                      description: "Task ID"
+                    created_at:
+                      type: number
+                      format: timestamptz
+                      description: "Task creation timestamp"
+                    title:
+                      type: string
+                      description: "Task title"
+                    description:
+                      type: string
+                      description: "Task description"
+                    status:
+                      type: string
+                      description: "Task status"
+                      enum: ["todo", "scheduled", "booked", "complete"]
+                    priority:
+                      type: string
+                      description: "Task priority"
+                      enum: ["low", "medium", "high", "urgent"]
+                    due_date:
+                      type: number
+                      format: timestamptz
+                      description: "Task due date timestamp"
+                    comments_count:
+                      type: integer
+                      description: "Number of comments"
+                    attachments_count:
+                      type: integer
+                      description: "Number of attachments"
+                    rating:
+                      type: integer
+                      description: "Task rating (0-5)"
+                      minimum: 0
+                      maximum: 5
+                    position:
+                      type: integer
+                      description: "Task position within status column"
+                    provider_type:
+                      type: string
+                      description: "Service provider type"
+                    assignee_id:
+                      type: integer
+                      format: int64
+                      description: "Assigned user ID"
+                    provider:
+                      type: string
+                      description: "Service provider category"
+                      enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+              example:
+                - id: 37
+                  created_at: 1754432791520
+                  title: "This is 2"
+                  description: "Add description here"
+                  status: "scheduled"
+                  priority: "medium"
+                  due_date: 1754432791000
+                  comments_count: 0
+                  attachments_count: 0
+                  rating: 0
+                  position: 10
+                  provider_type: "general"
+                  assignee_id: 2
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+  /task:
+    get:
+      summary: Query all task records
+      description: |
+        Query all task records
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - task
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                      description: "Task ID"
+                    position:
+                      type: integer
+                      format: int64
+                      description: "Task position"
+                    created_at:
+                      type: number
+                      format: timestamptz
+                      description: "Creation timestamp"
+                      default: now
+                    title:
+                      type: string
+                      description: "Task title"
+                    description:
+                      type: string
+                      description: "Task description"
+                    status:
+                      type: string
+                      description: "Task status"
+                      enum: ["todo", "scheduled", "booked", "complete"]
+                    priority:
+                      type: string
+                      description: "Task priority"
+                      enum: ["low", "medium", "high", "urgent"]
+                    due_date:
+                      type: number
+                      format: timestamptz
+                      description: "Due date timestamp"
+                    comments_count:
+                      type: integer
+                      format: int64
+                      description: "Number of comments"
+                    attachments_count:
+                      type: integer
+                      format: int64
+                      description: "Number of attachments"
+                    rating:
+                      type: integer
+                      format: int64
+                      description: "Task rating"
+                    provider_type:
+                      type: string
+                      description: "Service provider type"
+                    assignee_id:
+                      type: integer
+                      format: int64
+                      description: "Assigned user ID"
+                    provider:
+                      type: string
+                      description: "Service provider category"
+                      enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    post:
+      summary: Add task record
+      description: |
+        Add task record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - task
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: "Task ID"
+                  position:
+                    type: integer
+                    format: int64
+                    description: "Task position"
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: "Creation timestamp"
+                    default: now
+                  title:
+                    type: string
+                    description: "Task title"
+                  description:
+                    type: string
+                    description: "Task description"
+                  status:
+                    type: string
+                    description: "Task status"
+                    enum: ["todo", "scheduled", "booked", "complete"]
+                  priority:
+                    type: string
+                    description: "Task priority"
+                    enum: ["low", "medium", "high", "urgent"]
+                  due_date:
+                    type: number
+                    format: timestamptz
+                    description: "Due date timestamp"
+                  comments_count:
+                    type: integer
+                    format: int64
+                    description: "Number of comments"
+                  attachments_count:
+                    type: integer
+                    format: int64
+                    description: "Number of attachments"
+                  rating:
+                    type: integer
+                    format: int64
+                    description: "Task rating"
+                  provider_type:
+                    type: string
+                    description: "Service provider type"
+                  assignee_id:
+                    type: integer
+                    format: int64
+                    description: "Assigned user ID"
+                  provider:
+                    type: string
+                    description: "Service provider category"
+                    enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: integer
+                  format: int64
+                  description: "Task position"
+                title:
+                  type: string
+                  description: "Task title"
+                description:
+                  type: string
+                  description: "Task description"
+                status:
+                  type: string
+                  description: "Task status"
+                  enum: ["todo", "scheduled", "booked", "complete"]
+                priority:
+                  type: string
+                  description: "Task priority"
+                  enum: ["low", "medium", "high", "urgent"]
+                due_date:
+                  type: number
+                  format: timestamptz
+                  description: "Due date timestamp"
+                comments_count:
+                  type: integer
+                  format: int64
+                  description: "Number of comments"
+                attachments_count:
+                  type: integer
+                  format: int64
+                  description: "Number of attachments"
+                rating:
+                  type: integer
+                  format: int64
+                  description: "Task rating"
+                provider_type:
+                  type: string
+                  description: "Service provider type"
+                assignee_id:
+                  type: integer
+                  format: int64
+                  description: "Assigned user ID"
+                provider:
+                  type: string
+                  description: "Service provider category"
+                  enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: integer
+                  format: int64
+                  description: "Task position"
+                title:
+                  type: string
+                  description: "Task title"
+                description:
+                  type: string
+                  description: "Task description"
+                status:
+                  type: string
+                  description: "Task status"
+                  enum: ["todo", "scheduled", "booked", "complete"]
+                priority:
+                  type: string
+                  description: "Task priority"
+                  enum: ["low", "medium", "high", "urgent"]
+                due_date:
+                  type: number
+                  format: timestamptz
+                  description: "Due date timestamp"
+                comments_count:
+                  type: integer
+                  format: int64
+                  description: "Number of comments"
+                attachments_count:
+                  type: integer
+                  format: int64
+                  description: "Number of attachments"
+                rating:
+                  type: integer
+                  format: int64
+                  description: "Task rating"
+                provider_type:
+                  type: string
+                  description: "Service provider type"
+                assignee_id:
+                  type: integer
+                  format: int64
+                  description: "Assigned user ID"
+                provider:
+                  type: string
+                  description: "Service provider category"
+                  enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+  /task/{task_id}:
+    get:
+      summary: Get task record
+      description: |
+        Get task record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - task
+      security: []
+      parameters:
+        - name: task_id
+          in: path
+          description: "Task ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: "Task ID"
+                  position:
+                    type: integer
+                    format: int64
+                    description: "Task position"
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: "Creation timestamp"
+                    default: now
+                  title:
+                    type: string
+                    description: "Task title"
+                  description:
+                    type: string
+                    description: "Task description"
+                  status:
+                    type: string
+                    description: "Task status"
+                    enum: ["todo", "scheduled", "booked", "complete"]
+                  priority:
+                    type: string
+                    description: "Task priority"
+                    enum: ["low", "medium", "high", "urgent"]
+                  due_date:
+                    type: number
+                    format: timestamptz
+                    description: "Due date timestamp"
+                  comments_count:
+                    type: integer
+                    format: int64
+                    description: "Number of comments"
+                  attachments_count:
+                    type: integer
+                    format: int64
+                    description: "Number of attachments"
+                  rating:
+                    type: integer
+                    format: int64
+                    description: "Task rating"
+                  provider_type:
+                    type: string
+                    description: "Service provider type"
+                  assignee_id:
+                    type: integer
+                    format: int64
+                    description: "Assigned user ID"
+                  provider:
+                    type: string
+                    description: "Service provider category"
+                    enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    patch:
+      summary: Edit task record
+      description: |
+        Edit task record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - task
+      security: []
+      parameters:
+        - name: task_id
+          in: path
+          description: "Task ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: "Task ID"
+                  position:
+                    type: integer
+                    format: int64
+                    description: "Task position"
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: "Creation timestamp"
+                    default: now
+                  title:
+                    type: string
+                    description: "Task title"
+                  description:
+                    type: string
+                    description: "Task description"
+                  status:
+                    type: string
+                    description: "Task status"
+                    enum: ["todo", "scheduled", "booked", "complete"]
+                  priority:
+                    type: string
+                    description: "Task priority"
+                    enum: ["low", "medium", "high", "urgent"]
+                  due_date:
+                    type: number
+                    format: timestamptz
+                    description: "Due date timestamp"
+                  comments_count:
+                    type: integer
+                    format: int64
+                    description: "Number of comments"
+                  attachments_count:
+                    type: integer
+                    format: int64
+                    description: "Number of attachments"
+                  rating:
+                    type: integer
+                    format: int64
+                    description: "Task rating"
+                  provider_type:
+                    type: string
+                    description: "Service provider type"
+                  assignee_id:
+                    type: integer
+                    format: int64
+                    description: "Assigned user ID"
+                  provider:
+                    type: string
+                    description: "Service provider category"
+                    enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: integer
+                  format: int64
+                  description: "Task position"
+                title:
+                  type: string
+                  description: "Task title"
+                description:
+                  type: string
+                  description: "Task description"
+                status:
+                  type: string
+                  description: "Task status"
+                  enum: ["todo", "scheduled", "booked", "complete"]
+                priority:
+                  type: string
+                  description: "Task priority"
+                  enum: ["low", "medium", "high", "urgent"]
+                due_date:
+                  type: number
+                  format: timestamptz
+                  description: "Due date timestamp"
+                comments_count:
+                  type: integer
+                  format: int64
+                  description: "Number of comments"
+                attachments_count:
+                  type: integer
+                  format: int64
+                  description: "Number of attachments"
+                rating:
+                  type: integer
+                  format: int64
+                  description: "Task rating"
+                provider_type:
+                  type: string
+                  description: "Service provider type"
+                assignee_id:
+                  type: integer
+                  format: int64
+                  description: "Assigned user ID"
+                provider:
+                  type: string
+                  description: "Service provider category"
+                  enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                position:
+                  type: integer
+                  format: int64
+                  description: "Task position"
+                title:
+                  type: string
+                  description: "Task title"
+                description:
+                  type: string
+                  description: "Task description"
+                status:
+                  type: string
+                  description: "Task status"
+                  enum: ["todo", "scheduled", "booked", "complete"]
+                priority:
+                  type: string
+                  description: "Task priority"
+                  enum: ["low", "medium", "high", "urgent"]
+                due_date:
+                  type: number
+                  format: timestamptz
+                  description: "Due date timestamp"
+                comments_count:
+                  type: integer
+                  format: int64
+                  description: "Number of comments"
+                attachments_count:
+                  type: integer
+                  format: int64
+                  description: "Number of attachments"
+                rating:
+                  type: integer
+                  format: int64
+                  description: "Task rating"
+                provider_type:
+                  type: string
+                  description: "Service provider type"
+                assignee_id:
+                  type: integer
+                  format: int64
+                  description: "Assigned user ID"
+                provider:
+                  type: string
+                  description: "Service provider category"
+                  enum: ["Plumbing", "HVAC", "Painting", "Electrical"]
+    delete:
+      summary: Delete task record
+      description: |
+        Delete task record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - task
+      security: []
+      parameters:
+        - name: task_id
+          in: path
+          description: "Task ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+  /home_profile/{home_profile_id}:
+    get:
+      summary: Get home_profile record
+      description: |
+        Get home_profile record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_profile
+      security: []
+      parameters:
+        - name: home_profile_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: now
+                  address:
+                    type: string
+                    description: ""
+                  year_built:
+                    type: integer
+                    format: int64
+                    description: ""
+                  square_footage:
+                    type: integer
+                    format: int64
+                    description: ""
+                  bedrooms:
+                    type: integer
+                    format: int64
+                    description: ""
+                  bathrooms:
+                    type: number
+                    description: ""
+                  lot_size:
+                    type: string
+                    description: ""
+                  health_scores_overall:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_hvac:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_plumbing:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_electrical:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_exterior:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_security:
+                    type: integer
+                    format: int64
+                    description: ""
+                  user_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    patch:
+      summary: Edit home_profile record
+      description: |
+        Edit home_profile record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_profile
+      security: []
+      parameters:
+        - name: home_profile_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: "now"
+                  address:
+                    type: string
+                    description: ""
+                  year_built:
+                    type: integer
+                    format: int64
+                    description: ""
+                  square_footage:
+                    type: integer
+                    format: int64
+                    description: ""
+                  bedrooms:
+                    type: integer
+                    format: int64
+                    description: ""
+                  bathrooms:
+                    type: number
+                    description: ""
+                  lot_size:
+                    type: string
+                    description: ""
+                  health_scores_overall:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_hvac:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_plumbing:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_electrical:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_exterior:
+                    type: integer
+                    format: int64
+                    description: ""
+                  health_scores_security:
+                    type: integer
+                    format: int64
+                    description: ""
+                  user_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: ""
+                year_built:
+                  type: integer
+                  format: int64
+                  description: ""
+                square_footage:
+                  type: integer
+                  format: int64
+                  description: ""
+                bedrooms:
+                  type: integer
+                  format: int64
+                  description: ""
+                bathrooms:
+                  type: number
+                  description: ""
+                lot_size:
+                  type: string
+                  description: ""
+                health_scores_overall:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_hvac:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_plumbing:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_electrical:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_exterior:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_security:
+                  type: integer
+                  format: int64
+                  description: ""
+                user_id:
+                  type: integer
+                  format: int64
+                  description: ""
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+                  description: ""
+                year_built:
+                  type: integer
+                  format: int64
+                  description: ""
+                square_footage:
+                  type: integer
+                  format: int64
+                  description: ""
+                bedrooms:
+                  type: integer
+                  format: int64
+                  description: ""
+                bathrooms:
+                  type: number
+                  description: ""
+                lot_size:
+                  type: string
+                  description: ""
+                health_scores_overall:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_hvac:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_plumbing:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_electrical:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_exterior:
+                  type: integer
+                  format: int64
+                  description: ""
+                health_scores_security:
+                  type: integer
+                  format: int64
+                  description: ""
+                user_id:
+                  type: integer
+                  format: int64
+                  description: ""
+  /task/count/{userid}:
+    get:
+      summary: Get task count by status for a specific user
+      description: |
+        Get task count grouped by status for a specific user
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - task
+      security: []
+      parameters:
+        - name: userid
+          in: path
+          description: "User ID"
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    task_status:
+                      type: string
+                      description: "Task status"
+                    count:
+                      type: integer
+                      description: "Number of tasks with this status"
+              example:
+                - task_status: "todo"
+                  count: 5
+                - task_status: "scheduled"
+                  count: 3
+                - task_status: "booked"
+                  count: 2
+                - task_status: "complete"
+                  count: 10
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+  /home_system/{home_system_id}:
+    delete:
+      summary: Delete home_system record.
+      description: |
+        Delete home_system record.
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_system
+      security: []
+      parameters:
+        - name: home_system_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    get:
+      summary: Get home_system record
+      description: |
+        Get home_system record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_system
+      security: []
+      parameters:
+        - name: home_system_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: "now"
+                  type:
+                    type: string
+                    description: ""
+                  name:
+                    type: string
+                    description: ""
+                  brand:
+                    type: string
+                    description: ""
+                  installed_date:
+                    type: string
+                    format: date
+                    description: ""
+                  last_service_date:
+                    type: string
+                    format: date
+                    description: ""
+                  next_service_date:
+                    type: string
+                    format: date
+                    description: ""
+                  health_score:
+                    type: integer
+                    format: int64
+                    description: ""
+                  details:
+                    type: string
+                    description: ""
+                  user_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    patch:
+      summary: Edit home_system record
+      description: |
+        Edit home_system record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_system
+      security: []
+      parameters:
+        - name: home_system_id
+          in: path
+          description: ""
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: "now"
+                  type:
+                    type: string
+                    description: ""
+                  name:
+                    type: string
+                    description: ""
+                  brand:
+                    type: string
+                    description: ""
+                  installed_date:
+                    type: string
+                    format: date
+                    description: ""
+                  last_service_date:
+                    type: string
+                    format: date
+                    description: ""
+                  next_service_date:
+                    type: string
+                    format: date
+                    description: ""
+                  health_score:
+                    type: integer
+                    format: int64
+                    description: ""
+                  details:
+                    type: string
+                    description: ""
+                  user_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: ""
+                name:
+                  type: string
+                  description: ""
+                brand:
+                  type: string
+                  description: ""
+                installed_date:
+                  type: string
+                  format: date
+                  description: ""
+                last_service_date:
+                  type: string
+                  format: date
+                  description: ""
+                next_service_date:
+                  type: string
+                  format: date
+                  description: ""
+                health_score:
+                  type: integer
+                  format: int64
+                  description: ""
+                details:
+                  type: string
+                  description: ""
+                user_id:
+                  type: integer
+                  format: int64
+                  description: ""
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: ""
+                name:
+                  type: string
+                  description: ""
+                brand:
+                  type: string
+                  description: ""
+                installed_date:
+                  type: string
+                  format: date
+                  description: ""
+                last_service_date:
+                  type: string
+                  format: date
+                  description: ""
+                next_service_date:
+                  type: string
+                  format: date
+                  description: ""
+                health_score:
+                  type: integer
+                  format: int64
+                  description: ""
+                details:
+                  type: string
+                  description: ""
+                user_id:
+                  type: integer
+                  format: int64
+                  description: ""
+  /home_system:
+    get:
+      summary: Query all home_system records
+      description: |
+        Query all home_system records
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_system
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                      description: ""
+                    created_at:
+                      type: number
+                      format: timestamptz
+                      description: ""
+                      default: "now"
+                    type:
+                      type: string
+                      description: ""
+                    name:
+                      type: string
+                      description: ""
+                    brand:
+                      type: string
+                      description: ""
+                    installed_date:
+                      type: string
+                      format: date
+                      description: ""
+                    last_service_date:
+                      type: string
+                      format: date
+                      description: ""
+                    next_service_date:
+                      type: string
+                      format: date
+                      description: ""
+                    health_score:
+                      type: integer
+                      format: int64
+                      description: ""
+                    details:
+                      type: string
+                      description: ""
+                    user_id:
+                      type: integer
+                      format: int64
+                      description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+    post:
+      summary: Add home_system record
+      description: |
+        Add home_system record
+        <br /><br />
+        <b>Authentication:</b> not required
+      tags:
+        - home_system
+      security: []
+      parameters: []
+      responses:
+        "200":
+          description: Success!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: ""
+                  created_at:
+                    type: number
+                    format: timestamptz
+                    description: ""
+                    default: "now"
+                  type:
+                    type: string
+                    description: ""
+                  name:
+                    type: string
+                    description: ""
+                  brand:
+                    type: string
+                    description: ""
+                  installed_date:
+                    type: string
+                    format: date
+                    description: ""
+                  last_service_date:
+                    type: string
+                    format: date
+                    description: ""
+                  next_service_date:
+                    type: string
+                    format: date
+                    description: ""
+                  health_score:
+                    type: integer
+                    format: int64
+                    description: ""
+                  details:
+                    type: string
+                    description: ""
+                  user_id:
+                    type: integer
+                    format: int64
+                    description: ""
+        "400":
+          description: Input Error. Check the request payload for issues.
+        "401":
+          description: Unauthorized
+        "403":
+          description: Access denied. Additional privileges are needed access the requested resource.
+        "404":
+          description: Not Found. The requested resource does not exist.
+        "429":
+          description: Rate Limited. Too many requests.
+        "500":
+          description: Unexpected error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: ""
+                name:
+                  type: string
+                  description: ""
+                brand:
+                  type: string
+                  description: ""
+                installed_date:
+                  type: string
+                  format: date
+                  description: ""
+                last_service_date:
+                  type: string
+                  format: date
+                  description: ""
+                next_service_date:
+                  type: string
+                  format: date
+                  description: ""
+                health_score:
+                  type: integer
+                  format: int64
+                  description: ""
+                details:
+                  type: string
+                  description: ""
+                user_id:
+                  type: integer
+                  format: int64
+                  description: ""
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: ""
+                name:
+                  type: string
+                  description: ""
+                brand:
+                  type: string
+                  description: ""
+                installed_date:
+                  type: string
+                  format: date
+                  description: ""
+                last_service_date:
+                  type: string
+                  format: date
+                  description: ""
+                next_service_date:
+                  type: string
+                  format: date
+                  description: ""
+                health_score:
+                  type: integer
+                  format: int64
+                  description: ""
+                details:
+                  type: string
+                  description: ""
+                user_id:
+                  type: integer
+                  format: int64
+                  description: ""
