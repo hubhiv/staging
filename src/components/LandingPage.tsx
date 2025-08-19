@@ -33,7 +33,7 @@ export const LandingPage: React.FC = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
-              <div className="font-bold text-xl text-blue-600">HubHiv</div>
+              <div className="font-bold text-xl text-primary">HubHiv</div>
             </div>
             <div className="hidden md:flex space-x-8 items-center">
               <a href="#features" className="text-gray-600 hover:text-gray-900">
@@ -45,10 +45,10 @@ export const LandingPage: React.FC = () => {
               <a href="#contact" className="text-gray-600 hover:text-gray-900">
                 Contact
               </a>
-              <button onClick={openLoginModal} className="text-blue-600 hover:text-blue-800 font-medium">
+              <button onClick={openLoginModal} className="text-primary hover:text-primary/80 font-medium">
                 Login
               </button>
-              <button onClick={openRegisterModal} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+              <button onClick={openRegisterModal} className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md font-medium transition-colors">
                 Get Started
               </button>
             </div>
@@ -75,7 +75,7 @@ export const LandingPage: React.FC = () => {
                 services, and save money with our all-in-one platform.
               </p>
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <button onClick={openRegisterModal} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-colors flex items-center justify-center">
+                <button onClick={openRegisterModal} className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-medium text-lg transition-colors flex items-center justify-center">
                   Get Started <ArrowRight className="ml-2 w-5 h-5" />
                 </button>
                 <a href="#demo" className="border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-3 rounded-lg font-medium text-lg transition-colors flex items-center justify-center">
@@ -85,8 +85,8 @@ export const LandingPage: React.FC = () => {
             </div>
             <div className="md:w-1/2">
               <div className="relative rounded-xl overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-blue-600/5 backdrop-blur-sm z-10 flex items-center justify-center">
-                  <button onClick={openRegisterModal} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-lg transition-colors">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/5 backdrop-blur-sm z-10 flex items-center justify-center">
+                  <button onClick={openRegisterModal} className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg font-medium text-lg transition-colors">
                     Try It Now
                   </button>
                 </div>
@@ -106,7 +106,7 @@ export const LandingPage: React.FC = () => {
                       <div className="p-2 space-y-2">
                         <div className="bg-white p-3 rounded-md shadow-sm border border-gray-200 animate-pulse">
                           <div className="flex justify-between items-start mb-2">
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                               Medium
                             </span>
                           </div>
@@ -117,7 +117,7 @@ export const LandingPage: React.FC = () => {
                             <div className="flex items-center">
                               <div className="w-6 h-6 rounded-full bg-gray-300"></div>
                             </div>
-                            <button className="text-xs bg-blue-600 text-white py-1 px-2 rounded-md flex items-center">
+                            <button className="text-xs bg-primary text-primary-foreground py-1 px-2 rounded-md flex items-center">
                               <Calendar className="w-3 h-3 mr-1" />
                               <span>Request Booking</span>
                             </button>
@@ -136,7 +136,7 @@ export const LandingPage: React.FC = () => {
                             <div className="flex items-center">
                               <div className="w-6 h-6 rounded-full bg-gray-300"></div>
                             </div>
-                            <button className="text-xs bg-blue-600 text-white py-1 px-2 rounded-md flex items-center">
+                            <button className="text-xs bg-primary text-primary-foreground py-1 px-2 rounded-md flex items-center">
                               <Calendar className="w-3 h-3 mr-1" />
                               <span>Request Booking</span>
                             </button>
@@ -168,7 +168,7 @@ export const LandingPage: React.FC = () => {
                             <div className="flex items-center">
                               <div className="w-6 h-6 rounded-full bg-gray-300"></div>
                             </div>
-                            <button className="text-xs bg-blue-600 text-white py-1 px-2 rounded-md flex items-center">
+                            <button className="text-xs bg-primary text-primary-foreground py-1 px-2 rounded-md flex items-center">
                               <Calendar className="w-3 h-3 mr-1" />
                               <span>Scheduled</span>
                             </button>
@@ -258,9 +258,9 @@ export const LandingPage: React.FC = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-blue-50 p-6 rounded-xl">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <Calendar className="w-6 h-6 text-blue-600" />
+            <div className="bg-primary/5 p-6 rounded-xl">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <Calendar className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Easy Scheduling</h3>
               <p className="text-gray-600">
@@ -330,8 +330,8 @@ export const LandingPage: React.FC = () => {
                 Get Started
               </button>
             </div>
-            <div className="bg-white p-8 rounded-xl shadow-lg border-2 border-blue-500 transform md:-translate-y-4">
-              <div className="bg-blue-500 text-white text-xs font-bold uppercase tracking-wider py-1 px-2 rounded-full inline-block mb-2">
+            <div className="bg-white p-8 rounded-xl shadow-lg border-2 border-primary transform md:-translate-y-4">
+              <div className="bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider py-1 px-2 rounded-full inline-block mb-2">
                 Popular
               </div>
               <h3 className="text-xl font-bold mb-2">Premium</h3>
@@ -358,7 +358,7 @@ export const LandingPage: React.FC = () => {
                   <span>Exclusive discounts (up to 15%)</span>
                 </li>
               </ul>
-              <button onClick={openRegisterModal} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+              <button onClick={openRegisterModal} className="w-full py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors">
                 Get Started
               </button>
             </div>
@@ -433,7 +433,7 @@ export const LandingPage: React.FC = () => {
                 </label>
                 <textarea id="message" rows={4} className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Your message"></textarea>
               </div>
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md font-medium transition-colors">
+              <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2 px-4 rounded-md font-medium transition-colors">
                 Send Message
               </button>
             </form>
@@ -445,7 +445,7 @@ export const LandingPage: React.FC = () => {
         <div className="container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="font-bold text-xl text-blue-600 mb-4">HubHiv</div>
+              <div className="font-bold text-xl text-primary mb-4">HubHiv</div>
               <p className="text-gray-600 mb-4">
                 Simplifying home service management for homeowners everywhere.
               </p>

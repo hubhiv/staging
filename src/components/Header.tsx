@@ -79,16 +79,16 @@ export const Header: React.FC = () => {
   return <header className="bg-white border-b border-gray-200">
       <div className="px-4 py-2 flex items-center justify-between">
         <div className="flex items-center">
-          <div className="font-bold text-xl text-blue-600">HubHiv</div>
+          <div className="font-bold text-xl text-primary">HubHiv</div>
           {/* Desktop Navigation */}
           <nav className="hidden md:flex ml-6 space-x-4">
-            <a href="#" className={`font-medium ${currentView === 'myHome' ? 'text-gray-900 border-b-2 border-blue-500' : 'text-gray-600 hover:text-gray-900'}`} onClick={e => handleViewChange('myHome', e)}>
+            <a href="#" className={`font-medium ${currentView === 'myHome' ? 'text-gray-900 border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'}`} onClick={e => handleViewChange('myHome', e)}>
               My Home
             </a>
-            <a href="#" className={`font-medium ${currentView === 'board' ? 'text-gray-900 border-b-2 border-blue-500' : 'text-gray-600 hover:text-gray-900'}`} onClick={e => handleViewChange('board', e)}>
+            <a href="#" className={`font-medium ${currentView === 'board' ? 'text-gray-900 border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'}`} onClick={e => handleViewChange('board', e)}>
               My Board
             </a>
-            <a href="#" className={`font-medium ${currentView === 'calendar' ? 'text-gray-900 border-b-2 border-blue-500' : 'text-gray-600 hover:text-gray-900'}`} onClick={e => handleViewChange('calendar', e)}>
+            <a href="#" className={`font-medium ${currentView === 'calendar' ? 'text-gray-900 border-b-2 border-primary' : 'text-gray-600 hover:text-gray-900'}`} onClick={e => handleViewChange('calendar', e)}>
               Calendar
             </a>
           </nav>
@@ -100,13 +100,13 @@ export const Header: React.FC = () => {
           </button>
           {/* Search input - only visible on board view */}
           {currentView === 'board' && <div className="relative hidden md:block">
-              <input type="text" placeholder="Search..." className="pl-8 pr-4 py-1 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+              <input type="text" placeholder="Search..." className="pl-8 pr-4 py-1 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-primary" />
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             </div>}
           {/* Filter button - only visible on board view */}
-          {currentView === 'board' && <button className={`hidden md:flex p-1 rounded-full hover:bg-gray-100 items-center justify-center ${appliedFilters.length > 0 ? 'bg-blue-100 text-blue-600' : ''}`} onClick={toggleFilterModal} title="Filter Providers">
+          {currentView === 'board' && <button className={`hidden md:flex p-1 rounded-full hover:bg-gray-100 items-center justify-center ${appliedFilters.length > 0 ? 'bg-primary/10 text-primary' : ''}`} onClick={toggleFilterModal} title="Filter Providers">
               <Filter className="w-5 h-5 text-gray-600" />
-              {appliedFilters.length > 0 && <span className="absolute top-0 right-0 h-2 w-2 bg-blue-600 rounded-full"></span>}
+              {appliedFilters.length > 0 && <span className="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full"></span>}
             </button>}
           <button className="hidden sm:block p-1 rounded-full hover:bg-gray-100">
             <Share2 className="w-5 h-5 text-gray-600" />
@@ -131,18 +131,18 @@ export const Header: React.FC = () => {
       {/* Mobile Navigation Menu */}
       {mobileMenuOpen && <div className="md:hidden py-2 border-t border-gray-200">
           <nav className="flex flex-col space-y-2 px-4">
-            <a href="#" className={`py-2 px-1 font-medium ${currentView === 'board' ? 'text-blue-600' : 'text-gray-600'}`} onClick={e => handleViewChange('board', e)}>
+            <a href="#" className={`py-2 px-1 font-medium ${currentView === 'board' ? 'text-primary' : 'text-gray-600'}`} onClick={e => handleViewChange('board', e)}>
               My Board
             </a>
-            <a href="#" className={`py-2 px-1 font-medium ${currentView === 'calendar' ? 'text-blue-600' : 'text-gray-600'}`} onClick={e => handleViewChange('calendar', e)}>
+            <a href="#" className={`py-2 px-1 font-medium ${currentView === 'calendar' ? 'text-primary' : 'text-gray-600'}`} onClick={e => handleViewChange('calendar', e)}>
               Calendar
             </a>
-            <a href="#" className={`py-2 px-1 font-medium ${currentView === 'myHome' ? 'text-blue-600' : 'text-gray-600'}`} onClick={e => handleViewChange('myHome', e)}>
+            <a href="#" className={`py-2 px-1 font-medium ${currentView === 'myHome' ? 'text-primary' : 'text-gray-600'}`} onClick={e => handleViewChange('myHome', e)}>
               My Home
             </a>
             {/* Mobile search - only visible on board view */}
             {currentView === 'board' && <div className="pt-2 flex items-center">
-                <input type="text" placeholder="Search..." className="w-full pl-8 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                <input type="text" placeholder="Search..." className="w-full pl-8 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-primary" />
                 <Search className="absolute left-6 w-4 h-4 text-gray-400" />
               </div>}
           </nav>
@@ -156,7 +156,7 @@ export const Header: React.FC = () => {
               </h2>
               <div className="space-y-2">
                 {providerTypes.map(type => <label key={type} className="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" className="rounded text-blue-600 focus:ring-blue-500" value={type} checked={selectedProviderTypes.includes(type)} onChange={handleFilterChange} />
+                    <input type="checkbox" className="rounded text-primary focus:ring-primary" value={type} checked={selectedProviderTypes.includes(type)} onChange={handleFilterChange} />
                     <span>{type}</span>
                   </label>)}
               </div>
@@ -164,7 +164,7 @@ export const Header: React.FC = () => {
                 <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors" onClick={clearFilters}>
                   Clear
                 </button>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors" onClick={applyFilters}>
+                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors" onClick={applyFilters}>
                   Apply Filters
                 </button>
               </div>
