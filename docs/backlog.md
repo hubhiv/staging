@@ -5644,6 +5644,323 @@ Acceptance Criteria:
 End-to-End Testing:
 Status: PENDING
 Required Browser Testing Actions:
+
+## Maintenance Schedule Feature Stories
+
+### Story: Maintenance Schedule Display Integration
+**Task ID:** MAINT-001
+**Status:** In Progress
+**As a** homeowner,
+**I want to** see a Maintenance Schedule section on the "My Home" page that displays all my maintenance tasks in a table format,
+**So that** I can monitor all my maintenance tasks and their status at a glance.
+
+**Home Management API Details:**
+- **Primary Endpoint:** `GET /tasks/{userid}`
+- **Authentication:** Not required
+- **Query Parameters:**
+  ```json
+  {
+    "assignee_id": "integer (required, user ID to filter tasks)"
+  }
+  ```
+- **Success Response (200):**
+  ```json
+  {
+    "task": [
+      {
+        "id": "integer",
+        "created_at": "number (timestamptz)",
+        "title": "string",
+        "description": "string",
+        "status": "string (todo|scheduled|booked|complete)",
+        "priority": "string (low|medium|high|urgent)",
+        "due_date": "number (timestamptz)",
+        "comments_count": "integer",
+        "attachments_count": "integer",
+        "rating": "integer (0-5)",
+        "position": "integer",
+        "provider_type": "string",
+        "assignee_id": "integer",
+        "provider": "string (Plumbing|HVAC|Painting|Electrical)"
+      }
+    ]
+  }
+  ```
+- **Error Responses:**
+  - 400: Input Error - Check request payload
+  - 401: Unauthorized
+  - 404: Not Found - User or tasks not found
+  - 429: Rate Limited
+  - 500: Unexpected error
+
+**Pre-Requisite API Validation:**
+**Instructions:** Before proceeding with this story, go to `docs/api-tests.md` and execute the API test case(s) associated with this story (TEST-MAINT-001: Maintenance Task List API). Update this story in `backlog.md` with your comments regarding the test results. If the API tests fail, stop and notify the project lead. If the API tests pass, continue with executing and completing the story tasks below.
+
+**Status:** ✅ COMPLETE
+**Required Tests:** TEST-MAINT-001 (Maintenance Task List API for User)
+**Test Results:** ✅ PASS - API endpoint working correctly
+**Comments:**
+- ✅ API endpoint `GET /tasks/{userid}?assignee_id={assigneeId}` returns 200 OK with valid task data
+- ✅ Found 8 maintenance tasks for test user (ID: 2) with proper response structure
+- ✅ All core required fields present: id, title, description, status, priority, due_date, assignee_id
+- ⚠️ **Data Quality Issue:** `provider_type` field missing from all tasks (returns undefined)
+- ✅ Status values valid for maintenance schedule filters: todo, scheduled, booked, complete
+- ✅ Task distribution: 2 todo, 4 scheduled, 1 booked, 1 complete
+- ✅ Provider field present but often empty - will need frontend mapping logic
+- ✅ Timestamps in correct Unix format for date calculations
+- ✅ Ready for frontend integration with minor data mapping adjustments needed
+
+**Pre-Requisite: Review Frontend Files & Validate UI Integration Readiness**
+**Instructions:** Review existing frontend files to understand the current maintenance schedule mockup implementation and how it can be integrated with the task API.
+**Files to Review:** `src/components/MyHomeViewClean.tsx`, `src/components/MyHomeView.tsx`, `src/src/services/taskService.ts`, `src/src/types/api.ts`
+**Code Review Status:** ✅ COMPLETE
+**Issues Found:**
+
+**Current Implementation Analysis:**
+- ✅ **MyHomeViewClean.tsx**: Contains complete maintenance schedule mockup with table display, filtering, and CRUD operations
+- ✅ **TaskService**: Well-documented service with `getTasks(userId, assigneeId)` method ready for integration
+- ✅ **API Types**: Task interface matches API response structure with proper TypeScript definitions
+- ✅ **UI Components**: Maintenance schedule section fully implemented with filter buttons, table layout, and action buttons
+
+**Integration Points Identified:**
+1. **Data Source**: Replace `maintenanceTasks` state with TaskService.getTasks() API call
+2. **Data Mapping**: Map API Task interface to MaintenanceTask interface for display
+3. **Filter Logic**: Update `getFilteredTasks()` to work with API status values (todo→upcoming, scheduled→upcoming, booked→on-track, complete→completed)
+4. **System Icons**: Map `provider` field to system icons since `provider_type` is missing from API
+5. **Date Formatting**: Convert Unix timestamps to display format for "Last Done" and "Next Due" columns
+6. **CRUD Operations**: Replace mock handlers with TaskService methods (createTask, updateTask, deleteTask)
+
+**Data Mapping Requirements:**
+```typescript
+// API Task → MaintenanceTask mapping needed
+API Task.title → MaintenanceTask.name
+API Task.provider → MaintenanceTask.system
+API Task.created_at → MaintenanceTask.lastDone (formatted)
+API Task.due_date → MaintenanceTask.nextDue (formatted)
+API Task.status → MaintenanceTask.status (with mapping logic)
+```
+
+**Ready for Implementation:** ✅ All prerequisites met, clear integration path identified
+
+**Tasks:**
+1. Replace hardcoded maintenance tasks data in MyHomeViewClean.tsx with API integration
+2. Update getFilteredTasks() function to work with real API data structure
+3. Implement data mapping between API task format and maintenance task display format
+4. Add loading states for maintenance schedule section during API calls
+5. Implement error handling for failed maintenance task loading
+6. Update task filtering logic to work with API status values
+7. Ensure maintenance task table displays correctly with real data
+8. Test maintenance schedule display with various task statuses and priorities
+
+**Acceptance Criteria:**
+- Maintenance Schedule section displays actual tasks from API instead of mock data
+- Tasks are displayed in table format with columns: Task, System, Frequency, Last Done, Next Due, Status, Actions
+- Tasks are filtered correctly by status (All Tasks, Upcoming, Overdue, On track, Completed)
+- Loading indicator shows during initial task fetch
+- Error messages display if task loading fails
+- Task data maps correctly from API format to display format
+- Empty state shows appropriate message when no tasks exist
+- Task counts in filter buttons reflect actual task numbers
+- All task statuses (todo, scheduled, booked, complete) display correctly
+- System icons display correctly for different provider types
+
+**End-to-End Testing:**
+**Status:** PENDING
+**Required Browser Testing Actions:**
+- [ ] Load "My Home" page and verify Maintenance Schedule section displays
+- [ ] Verify tasks load from API and display in table format
+- [ ] Test task filtering by status (All, Upcoming, Overdue, On track, Completed)
+- [ ] Verify loading states during task fetch
+- [ ] Test error handling for failed API calls
+- [ ] Confirm task data displays correctly in all table columns
+- [ ] Test empty state when no maintenance tasks exist
+- [ ] Verify system icons display correctly for different provider types
+**Test Results:** [To be updated after browser testing]
+**Browser Testing Notes:** [Add observations about actual browser behavior]
+
+**Implementation:**
+file="[file-path]"
+[Code implementation with detailed comments]
+
+### Story: Maintenance Schedule CRUD Operations Integration
+**Task ID:** MAINT-002
+**Status:** To Do
+**As a** homeowner,
+**I want to** be able to create, read, update, and delete maintenance tasks in the Maintenance Schedule section,
+**So that** I can keep my maintenance tasks up-to-date and accurate.
+
+**Home Management API Details:**
+- **Create Endpoint:** `POST /task`
+- **Read Endpoint:** `GET /tasks/{userid}` (already implemented in MAINT-001)
+- **Update Endpoint:** `PATCH /tasks/{id}`
+- **Delete Endpoint:** `DELETE /task/{task_id}`
+- **Authentication:** Bearer JWT tokens for update operations, not required for read/delete
+- **Create Request Body:**
+  ```json
+  {
+    "title": "string (required, 1-255 characters)",
+    "description": "string (optional, max 2000 characters)",
+    "status": "string (required, todo|scheduled|booked|complete)",
+    "priority": "string (required, low|medium|high|urgent)",
+    "assignee_id": "integer (required, user ID)",
+    "due_date": "string (optional, ISO 8601 format)",
+    "provider_type": "string (optional, valid provider type)",
+    "provider": "string (optional, Plumbing|HVAC|Painting|Electrical)"
+  }
+  ```
+- **Update Request Body:** Same as create, all fields optional except id
+- **Success Responses:**
+  - Create (200): Returns created task object
+  - Update (200): Returns updated task object
+  - Delete (200): Returns empty object
+- **Error Responses:**
+  - 400: Invalid request data or validation errors
+  - 401: Authentication failed (for update operations)
+  - 404: Task not found
+  - 422: Unprocessable entity (validation errors)
+  - 500: Server error
+
+**Pre-Requisite API Validation:**
+**Instructions:** Before proceeding with this story, go to `docs/api-tests.md` and execute the API test case(s) associated with this story (TEST-MAINT-002: Maintenance Task CRUD APIs). Update this story in `backlog.md` with your comments regarding the test results. If the API tests fail, stop and notify the project lead. If the API tests pass, continue with executing and completing the story tasks below.
+
+**Status:** PENDING
+**Required Tests:** TEST-MAINT-002 (Maintenance Task CRUD - Create, Update, Delete)
+**Test Results:** [To be updated after running tests]
+**Comments:** [Detailed comments about API test results]
+
+**Pre-Requisite: Review Frontend Files & Validate UI Integration Readiness**
+**Instructions:** Review existing frontend files to understand the current maintenance task CRUD mockup implementation and how it can be integrated with the task API.
+**Files to Review:** `src/components/MyHomeViewClean.tsx`, `src/src/services/taskService.ts`, `src/components/TaskDetailModal.tsx`, `src/components/KanbanContext.tsx`
+**Code Review Status:** PENDING
+**Issues Found:** [List any issues discovered]
+
+**Tasks:**
+1. Replace mock handleAddTask function with real TaskService.createTask API call
+2. Update handleSaveTask function to use TaskService.updateTask for existing tasks
+3. Replace mock handleConfirmDelete with TaskService.deleteTask API call
+4. Implement proper error handling for all CRUD operations with user feedback
+5. Add loading states during create, update, and delete operations
+6. Update task state management to work with API responses
+7. Integrate with existing TaskDetailModal component for task editing
+8. Ensure optimistic updates with rollback on API failure
+9. Add form validation for required fields (title, status, priority, assignee_id)
+10. Test all CRUD operations with real API endpoints
+
+**Acceptance Criteria:**
+- "Add Task" button creates new maintenance tasks via API and updates the display
+- Edit button (pencil icon) opens task editing modal with current task data
+- Task editing modal saves changes via API and updates the maintenance schedule
+- Delete button (trash icon) shows confirmation dialog and removes task via API
+- All CRUD operations show loading states during API calls
+- Error messages display for failed API operations with retry options
+- Success feedback confirms successful create, update, and delete operations
+- Form validation prevents invalid data submission (required fields, character limits)
+- Optimistic updates provide immediate feedback with rollback on API failure
+- Task list refreshes automatically after successful CRUD operations
+- New tasks appear in correct status filter after creation
+- Updated tasks move to appropriate status filter after editing
+- Deleted tasks are immediately removed from all filter views
+
+**End-to-End Testing:**
+**Status:** PENDING
+**Required Browser Testing Actions:**
+- [ ] Click "Add Task" button and create new maintenance task via API
+- [ ] Edit existing task using pencil icon and verify changes save via API
+- [ ] Delete task using trash icon and confirm removal via API
+- [ ] Test form validation for required fields and invalid inputs
+- [ ] Verify loading states during all CRUD operations
+- [ ] Test error handling for failed API calls
+- [ ] Confirm optimistic updates with rollback on API failure
+- [ ] Test task filtering after create, update, and delete operations
+- [ ] Verify success/error feedback messages display correctly
+- [ ] Test CRUD operations across different task statuses
+**Test Results:** [To be updated after browser testing]
+**Browser Testing Notes:** [Add observations about actual browser behavior]
+
+**Implementation:**
+file="[file-path]"
+[Code implementation with detailed comments]
+
+### Story: Maintenance Schedule Column Sorting Integration
+**Task ID:** MAINT-003
+**Status:** To Do
+**As a** homeowner,
+**I want to** be able to sort my maintenance tasks by clicking column headers (Task, System, Frequency, Last Done, Next Due, Status),
+**So that** I can find specific tasks quickly and organize them according to my preferences.
+
+**Home Management API Details:**
+- **Primary Endpoint:** Uses existing `GET /tasks/{userid}` from MAINT-001
+- **No Additional API Calls Required:** Sorting will be performed client-side on loaded task data
+- **Sort Fields Available:**
+  - Task: `title` (string)
+  - System: `provider` (string - Plumbing|HVAC|Painting|Electrical)
+  - Priority: `priority` (string - low|medium|high|urgent)
+  - Due Date: `due_date` (number, timestamptz)
+  - Status: `status` (string - todo|scheduled|booked|complete)
+  - Created Date: `created_at` (number, timestamptz)
+
+**Pre-Requisite API Validation:**
+**Instructions:** Before proceeding with this story, go to `docs/api-tests.md` and execute the API test case(s) associated with this story (TEST-MAINT-003: Task Data Sorting Fields). Update this story in `backlog.md` with your comments regarding the test results. If the API tests fail, stop and notify the project lead. If the API tests pass, continue with executing and completing the story tasks below.
+
+**Status:** PENDING
+**Required Tests:** TEST-MAINT-003 (Task Data Sorting Fields Validation)
+**Test Results:** [To be updated after running tests]
+**Comments:** [Detailed comments about API test results]
+
+**Pre-Requisite: Review Frontend Files & Validate UI Integration Readiness**
+**Instructions:** Review existing frontend files to understand the current maintenance schedule table implementation and identify where sorting functionality should be added.
+**Files to Review:** `src/components/MyHomeViewClean.tsx`, `src/components/MyHomeView.tsx`
+**Code Review Status:** PENDING
+**Issues Found:** [List any issues discovered]
+
+**Tasks:**
+1. Add sorting state management to maintenance schedule component
+2. Implement clickable column headers with sort indicators (up/down arrows)
+3. Create sorting functions for different data types (string, date, enum)
+4. Add visual indicators for current sort column and direction
+5. Implement multi-level sorting (primary and secondary sort criteria)
+6. Handle null/undefined values in sorting logic
+7. Maintain sort state when tasks are filtered by status
+8. Add keyboard accessibility for column header sorting
+9. Ensure sorting works correctly with API data format
+10. Test sorting performance with large numbers of tasks
+
+**Acceptance Criteria:**
+- Column headers are clickable and show sort indicators (arrows)
+- Clicking a column header sorts tasks by that column in ascending order
+- Clicking the same column header again reverses the sort order (descending)
+- Visual indicators show which column is currently sorted and in which direction
+- Task name column sorts alphabetically (A-Z, then Z-A)
+- System column sorts by provider type alphabetically
+- Frequency column sorts by frequency value (if applicable)
+- Last Done column sorts by date (oldest to newest, then newest to oldest)
+- Next Due column sorts by due date (earliest to latest, then latest to earliest)
+- Status column sorts by status priority (overdue, upcoming, on-track, completed)
+- Sorting works correctly with filtered task views (All, Upcoming, Overdue, etc.)
+- Null or undefined values are handled gracefully in sorting
+- Sort state persists when switching between status filters
+- Keyboard navigation allows sorting via Enter/Space keys on column headers
+- Sort indicators are visually clear and accessible
+
+**End-to-End Testing:**
+**Status:** PENDING
+**Required Browser Testing Actions:**
+- [ ] Click each column header and verify tasks sort correctly
+- [ ] Test ascending and descending sort for each column
+- [ ] Verify sort indicators display correctly (up/down arrows)
+- [ ] Test sorting with filtered task views (All, Upcoming, Overdue, etc.)
+- [ ] Verify sorting works with null/undefined values
+- [ ] Test keyboard accessibility for column header sorting
+- [ ] Confirm sort state persists when switching between filters
+- [ ] Test sorting performance with multiple tasks
+- [ ] Verify visual feedback for current sort column and direction
+- [ ] Test sorting after CRUD operations (create, update, delete tasks)
+**Test Results:** [To be updated after browser testing]
+**Browser Testing Notes:** [Add observations about actual browser behavior]
+
+**Implementation:**
+file="[file-path]"
+[Code implementation with detailed comments]
 - [ ] Click delete button on system card and verify confirmation dialog appears
 - [ ] Cancel deletion and verify system remains in UI
 - [ ] Confirm deletion and verify system removes from UI immediately

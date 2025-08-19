@@ -1461,6 +1461,310 @@ curl -X PATCH "https://x8gd-ip42-19oh.n7e.xano.io/api:vUhMdCxR/tasks/7/move" \
 - **Required Action:** Backend team must implement the missing API endpoints before frontend work can proceed
 - **Impact:** TASK-016 cannot be completed without backend API development first
 
+## **Maintenance Schedule API Tests**
+*Related to MAINT-001: Maintenance Schedule Display Integration*
+
+### **TEST-MAINT-001: Maintenance Task List API**
+**Task Reference:** MAINT-001
+**Purpose:** Test the API endpoint for loading maintenance tasks to display in the "My Home" page Maintenance Schedule section
+**Status:** ⏳ PENDING
+
+**Endpoint:** `GET /tasks/{userid}`
+**Authentication:** Not required
+**Query Parameters:** `assignee_id` (integer, required)
+
+**Test Request:**
+```bash
+# Test with the test user ID (2) and assignee_id parameter for maintenance tasks
+curl -X GET "https://x8gd-ip42-19oh.n7e.xano.io/api:vUhMdCxR/tasks/2?assignee_id=2" \
+  -H "Accept: application/json"
+```
+
+**Expected Response (200 OK):**
+```json
+{
+  "task": [
+    {
+      "id": 7,
+      "created_at": 1754286649788,
+      "title": "HVAC Service",
+      "description": "Bi-annual HVAC system maintenance and filter replacement",
+      "status": "scheduled",
+      "priority": "medium",
+      "due_date": 1754286648000,
+      "comments_count": 0,
+      "attachments_count": 0,
+      "rating": 0,
+      "position": 0,
+      "provider_type": "hvac",
+      "assignee_id": 2,
+      "provider": "HVAC"
+    },
+    {
+      "id": 8,
+      "created_at": 1754286649788,
+      "title": "Gutter Cleaning",
+      "description": "Clean gutters and downspouts, check for damage",
+      "status": "overdue",
+      "priority": "high",
+      "due_date": 1754200000000,
+      "comments_count": 0,
+      "attachments_count": 0,
+      "rating": 0,
+      "position": 1,
+      "provider_type": "exterior",
+      "assignee_id": 2,
+      "provider": "Exterior"
+    }
+  ]
+}
+```
+
+**Test Validation:**
+- ✅ Response contains "task" array wrapper
+- ✅ Each task object has all required fields for maintenance schedule display
+- ✅ Status values map to maintenance schedule filters (todo→upcoming, scheduled→upcoming, complete→completed)
+- ✅ Priority values are valid (low, medium, high, urgent)
+- ✅ Provider types map to system categories (hvac→HVAC, plumbing→Plumbing, electrical→Electrical, exterior→Exterior)
+- ✅ Due dates are in timestamp format for "Next Due" column calculation
+- ✅ Created dates are in timestamp format for "Last Done" column calculation
+- ✅ assignee_id matches the requested user ID
+- ✅ Tasks contain sufficient data for maintenance schedule table display
+
+**Test Script:**
+```javascript
+// TEST-MAINT-001: Maintenance Task List API
+const testMaintenanceTaskListAPI = async () => {
+  const baseURL = 'https://x8gd-ip42-19oh.n7e.xano.io/api:vUhMdCxR';
+  const userId = 2; // Test user ID
+  const assigneeId = 2; // Same as user ID for this test
+
+  try {
+    const response = await fetch(`${baseURL}/tasks/${userId}?assignee_id=${assigneeId}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log('Maintenance Task List API Status:', response.status);
+    const data = await response.json();
+    console.log('Maintenance Task List API Response:', data);
+
+    // Validate response structure for maintenance schedule
+    if (data.task && Array.isArray(data.task)) {
+      console.log(`✅ Found ${data.task.length} maintenance tasks for user ${userId}`);
+
+      // Validate each task for maintenance schedule requirements
+      data.task.forEach((task, index) => {
+        console.log(`Maintenance Task ${index + 1}:`, {
+          id: task.id,
+          title: task.title,
+          status: task.status,
+          priority: task.priority,
+          provider: task.provider,
+          provider_type: task.provider_type,
+          due_date: task.due_date,
+          assignee_id: task.assignee_id
+        });
+
+        // Validate required fields for maintenance schedule
+        const requiredFields = ['id', 'title', 'description', 'status', 'priority', 'due_date', 'provider_type', 'assignee_id'];
+        const missingFields = requiredFields.filter(field => task[field] === undefined);
+        if (missingFields.length > 0) {
+          console.warn(`⚠️ Maintenance Task ${task.id} missing fields:`, missingFields);
+        }
+
+        // Validate status values for maintenance schedule filters
+        const validStatuses = ['todo', 'scheduled', 'booked', 'complete'];
+        if (!validStatuses.includes(task.status)) {
+          console.warn(`⚠️ Maintenance Task ${task.id} has invalid status:`, task.status);
+        }
+
+        // Validate provider types for system categorization
+        const validProviderTypes = ['hvac', 'plumbing', 'electrical', 'exterior', 'painting', 'general'];
+        if (task.provider_type && !validProviderTypes.includes(task.provider_type.toLowerCase())) {
+          console.warn(`⚠️ Maintenance Task ${task.id} has invalid provider_type:`, task.provider_type);
+        }
+
+        // Validate provider categories for system icons
+        const validProviders = ['HVAC', 'Plumbing', 'Electrical', 'Exterior', 'Painting'];
+        if (task.provider && !validProviders.includes(task.provider)) {
+          console.warn(`⚠️ Maintenance Task ${task.id} has invalid provider:`, task.provider);
+        }
+
+        // Check due date format for maintenance schedule calculations
+        if (task.due_date && typeof task.due_date !== 'number') {
+          console.warn(`⚠️ Maintenance Task ${task.id} has invalid due_date format:`, typeof task.due_date);
+        }
+      });
+
+      // Analyze task distribution for maintenance schedule filters
+      const statusCounts = data.task.reduce((counts, task) => {
+        counts[task.status] = (counts[task.status] || 0) + 1;
+        return counts;
+      }, {});
+      console.log('📊 Maintenance Task Status Distribution:', statusCounts);
+
+      const providerCounts = data.task.reduce((counts, task) => {
+        const provider = task.provider || task.provider_type || 'Unknown';
+        counts[provider] = (counts[provider] || 0) + 1;
+        return counts;
+      }, {});
+      console.log('🔧 Maintenance Task Provider Distribution:', providerCounts);
+
+    } else {
+      console.error('❌ Response does not contain task array');
+    }
+
+    return { status: response.status, data, taskCount: data.task?.length || 0 };
+  } catch (error) {
+    console.error('Maintenance task list API test failed:', error);
+    return { error: error.message };
+  }
+};
+
+// Test maintenance schedule specific filtering
+const testMaintenanceScheduleFiltering = async () => {
+  console.log('🧪 Testing Maintenance Schedule Task Filtering...\n');
+
+  const result = await testMaintenanceTaskListAPI();
+
+  if (result.data && result.data.task) {
+    const tasks = result.data.task;
+
+    // Test maintenance schedule filter mapping
+    const maintenanceFilters = {
+      'all': tasks,
+      'upcoming': tasks.filter(t => ['todo', 'scheduled'].includes(t.status)),
+      'overdue': tasks.filter(t => t.status === 'overdue' || (t.due_date && new Date(t.due_date) < new Date())),
+      'on-track': tasks.filter(t => t.status === 'booked'),
+      'completed': tasks.filter(t => t.status === 'complete')
+    };
+
+    console.log('🔍 Maintenance Schedule Filter Results:');
+    Object.entries(maintenanceFilters).forEach(([filter, filteredTasks]) => {
+      console.log(`  ${filter}: ${filteredTasks.length} tasks`);
+    });
+
+    // Test system categorization
+    const systemCategories = {
+      'HVAC': tasks.filter(t => ['hvac'].includes(t.provider_type?.toLowerCase())),
+      'Plumbing': tasks.filter(t => ['plumbing'].includes(t.provider_type?.toLowerCase())),
+      'Electrical': tasks.filter(t => ['electrical'].includes(t.provider_type?.toLowerCase())),
+      'Exterior': tasks.filter(t => ['exterior', 'painting'].includes(t.provider_type?.toLowerCase()))
+    };
+
+    console.log('🏠 System Category Distribution:');
+    Object.entries(systemCategories).forEach(([system, systemTasks]) => {
+      console.log(`  ${system}: ${systemTasks.length} tasks`);
+    });
+  }
+
+  return result;
+};
+```
+
+**Error Test Cases:**
+
+**Test Case 1: Invalid User ID**
+```bash
+curl -X GET "https://x8gd-ip42-19oh.n7e.xano.io/api:vUhMdCxR/tasks/99999?assignee_id=2" \
+  -H "Accept: application/json"
+```
+**Expected:** 404 Not Found or empty task array
+
+**Test Case 2: Missing assignee_id Parameter**
+```bash
+curl -X GET "https://x8gd-ip42-19oh.n7e.xano.io/api:vUhMdCxR/tasks/2" \
+  -H "Accept: application/json"
+```
+**Expected:** 400 Bad Request or all tasks for user
+
+**Actual Results:** ✅ PASS
+**Test Date:** 2025-08-19T12:30:00.000Z
+**Status Code:** 200 OK
+**Response Structure:** Valid - Contains "task" array with 8 maintenance tasks
+**Sample Response:**
+```json
+{
+  "task": [
+    {
+      "id": 41,
+      "position": 70,
+      "created_at": 1754458271690,
+      "title": "Hard Water Maintenance",
+      "description": "Add description here",
+      "assignee_id": 2,
+      "status": "todo",
+      "priority": "medium",
+      "due_date": 1754438400000,
+      "comments_count": 0,
+      "attachments_count": 0,
+      "rating": 0,
+      "provider": ""
+    },
+    {
+      "id": 42,
+      "position": 10,
+      "created_at": 1754458272581,
+      "title": "Dryer and Washer Deliver and Install",
+      "description": "Add description here",
+      "assignee_id": 2,
+      "status": "booked",
+      "priority": "medium",
+      "due_date": 1754458272000,
+      "comments_count": 0,
+      "attachments_count": 0,
+      "rating": 0,
+      "provider": "Plumbing"
+    }
+  ]
+}
+```
+
+**Validation Results:**
+- ✅ Response contains "task" array wrapper as expected
+- ✅ Found 8 maintenance tasks for user ID 2 with assignee_id=2
+- ✅ All tasks have core required fields (id, title, description, status, priority, due_date, assignee_id)
+- ⚠️ **Issue Found:** All tasks missing `provider_type` field (shows as undefined)
+- ✅ Status values are valid maintenance schedule statuses: "todo", "scheduled", "booked", "complete"
+- ✅ Priority values are valid: "medium", "high"
+- ✅ All numeric fields properly typed (id, timestamps, counts, rating, position)
+- ✅ assignee_id correctly matches requested user (2)
+- ✅ Timestamps in correct format (Unix timestamps)
+- ✅ Provider field present but often empty string
+- ✅ Position field present for task ordering
+
+**Task Distribution by Status:**
+- todo: 2 tasks
+- scheduled: 4 tasks
+- booked: 1 task
+- complete: 1 task
+
+**Maintenance Schedule Filter Mapping:**
+- All Tasks: 8 tasks
+- Upcoming (todo + scheduled): 6 tasks
+- On Track (booked): 1 task
+- Completed (complete): 1 task
+- Overdue (due_date < now): 8 tasks (all tasks are overdue based on due dates)
+
+**Provider Distribution:**
+- Unknown/Empty: 4 tasks
+- Plumbing: 2 tasks
+- Electrical: 1 task
+- Painting: 1 task
+
+**Notes:**
+- ✅ API endpoint working perfectly with expected response structure
+- ⚠️ **Data Quality Issue:** `provider_type` field is missing from all tasks - this will need to be handled in frontend mapping
+- ✅ Task data includes all core fields needed for maintenance schedule display
+- ✅ Response matches the provided API specification structure
+- ✅ Ready for frontend integration with minor data mapping adjustments needed
+- ⚠️ **Frontend Consideration:** Will need to map `provider` field to system icons since `provider_type` is missing
+- ✅ Filter logic works correctly for maintenance schedule status categorization
+- ✅ Large enough dataset (8 tasks) available for testing maintenance schedule functionality
+
 ### **TEST-TASK-016-BULK: Bulk Task Reorder API**
 **Task Reference:** TASK-016
 **Purpose:** Test bulk reordering of multiple tasks for performance optimization

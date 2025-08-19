@@ -5,8 +5,9 @@ import { HomeSystemsSection } from './HomeSystemsSection';
 import { EditHomeProfileModal } from './EditHomeProfileModal';
 import { ConfirmDialog } from './ConfirmDialog';
 import { TaskEditorModal } from './TaskEditorModal';
+import { useMaintenanceTasks } from '../hooks/useMaintenanceTasks';
 
-// Maintenance Task Interface
+// Maintenance Task Interface (keeping local interface for compatibility)
 interface MaintenanceTask {
   id: string;
   name: string;
@@ -118,7 +119,7 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
   // State for tab selection in home systems
   const [activeSystemTab, setActiveSystemTab] = useState<string>('all');
   const [maintenanceFilter, setMaintenanceFilter] = useState<string>('all');
-  
+
   // State for CRUD operations
   const [editHomeProfile, setEditHomeProfile] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -131,41 +132,25 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
   const [selectedTask, setSelectedTask] = useState<MaintenanceTask | null>(null);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
+  // Use maintenance tasks hook for API integration
+  const {
+    tasks: maintenanceTasks,
+    loading: tasksLoading,
+    error: tasksError,
+    getFilteredTasks: getFilteredMaintenanceTasks,
+    getTaskCounts,
+    createTask: createMaintenanceTask,
+    updateTask: updateMaintenanceTask,
+    deleteTask: deleteMaintenanceTask,
+    refreshTasks
+  } = useMaintenanceTasks(userId || 2);
+
   // Service provider management state
   const [isProviderEditorOpen, setIsProviderEditorOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<ServiceProvider | null>(null);
   const [providerToDelete, setProviderToDelete] = useState<string | null>(null);
 
-  // Sample maintenance tasks data
-  const [maintenanceTasks, setMaintenanceTasks] = useState<MaintenanceTask[]>([
-    {
-      id: 'task-1',
-      name: 'Gutter Cleaning',
-      system: 'Exterior',
-      frequency: 'Bi-annual',
-      lastDone: '2022-11-09',
-      nextDue: '2023-05-09',
-      status: 'overdue'
-    },
-    {
-      id: 'task-2',
-      name: 'HVAC Service',
-      system: 'HVAC',
-      frequency: 'Bi-annual',
-      lastDone: '2023-03-14',
-      nextDue: '2023-09-14',
-      status: 'upcoming'
-    },
-    {
-      id: 'task-3',
-      name: 'Water Heater Flush',
-      system: 'Plumbing',
-      frequency: 'Annual',
-      lastDone: '2023-01-19',
-      nextDue: '2024-01-19',
-      status: 'on-track'
-    }
-  ]);
+  // Maintenance tasks now loaded via useMaintenanceTasks hook
 
   // Sample service providers data
   const [serviceProviders, setServiceProviders] = useState<ServiceProvider[]>([
@@ -251,8 +236,7 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
   };
 
   const getFilteredTasks = () => {
-    if (maintenanceFilter === 'all') return maintenanceTasks;
-    return maintenanceTasks.filter(task => task.status === maintenanceFilter);
+    return getFilteredMaintenanceTasks(maintenanceFilter);
   };
 
   const getStatusColor = (status: string) => {
@@ -281,13 +265,19 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
   };
 
   const handleSaveTask = async (task: MaintenanceTask) => {
-    if (task.id && maintenanceTasks.find(t => t.id === task.id)) {
-      // Update existing task
-      setMaintenanceTasks(prev => prev.map(t => t.id === task.id ? task : t));
-    } else {
-      // Add new task
-      const newTask = { ...task, id: `task-${Date.now()}` };
-      setMaintenanceTasks(prev => [...prev, newTask]);
+    try {
+      if (task.id && maintenanceTasks.find(t => t.id === task.id)) {
+        // Update existing task
+        await updateMaintenanceTask(task.id, task);
+      } else {
+        // Add new task
+        await createMaintenanceTask(task);
+      }
+      setIsTaskEditorOpen(false);
+      setSelectedTask(null);
+    } catch (error) {
+      console.error('Failed to save maintenance task:', error);
+      // Error handling is managed by the hook
     }
   };
 
@@ -300,10 +290,15 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
     setTaskToDelete(taskId);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (taskToDelete) {
-      setMaintenanceTasks(prev => prev.filter(task => task.id !== taskToDelete));
-      setTaskToDelete(null);
+      try {
+        await deleteMaintenanceTask(taskToDelete);
+        setTaskToDelete(null);
+      } catch (error) {
+        console.error('Failed to delete maintenance task:', error);
+        // Error handling is managed by the hook
+      }
     }
   };
 
@@ -590,7 +585,7 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
               }`}
               onClick={() => setMaintenanceFilter('all')}
             >
-              All Tasks
+              All Tasks ({getTaskCounts().all})
             </button>
             <button
               className={`px-3 py-1 rounded-md text-sm font-medium ${
@@ -600,7 +595,7 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
               }`}
               onClick={() => setMaintenanceFilter('upcoming')}
             >
-              Upcoming
+              Upcoming ({getTaskCounts().upcoming})
             </button>
             <button
               className={`px-3 py-1 rounded-md text-sm font-medium ${
@@ -610,7 +605,7 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
               }`}
               onClick={() => setMaintenanceFilter('overdue')}
             >
-              Overdue
+              Overdue ({getTaskCounts().overdue})
             </button>
             <button
               className={`px-3 py-1 rounded-md text-sm font-medium ${
@@ -620,7 +615,7 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
               }`}
               onClick={() => setMaintenanceFilter('on-track')}
             >
-              On track
+              On track ({getTaskCounts()['on-track']})
             </button>
             <button
               className={`px-3 py-1 rounded-md text-sm font-medium ${
@@ -630,7 +625,7 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
               }`}
               onClick={() => setMaintenanceFilter('completed')}
             >
-              Completed
+              Completed ({getTaskCounts().completed})
             </button>
           </div>
         </div>
@@ -647,7 +642,24 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
             <div>Actions</div>
           </div>
 
-          {getFilteredTasks().length === 0 ? (
+          {tasksLoading ? (
+            <div className="p-8 text-center text-gray-500">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p>Loading maintenance tasks...</p>
+            </div>
+          ) : tasksError ? (
+            <div className="p-8 text-center text-red-500">
+              <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-red-900 mb-2">Error Loading Tasks</h3>
+              <p className="text-red-600 mb-4">{tasksError}</p>
+              <button
+                onClick={refreshTasks}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : getFilteredTasks().length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Maintenance Tasks</h3>
