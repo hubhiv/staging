@@ -35,10 +35,37 @@ export const TaskEditorModal: React.FC<TaskEditorModalProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  // Helper function to convert MM/DD/YYYY to YYYY-MM-DD for date inputs
+  const convertToDateInputFormat = (dateString: string): string => {
+    if (!dateString || dateString === 'Not set') return '';
+
+    // Handle MM/DD/YYYY format
+    const dateParts = dateString.split('/');
+    if (dateParts.length === 3) {
+      const [month, day, year] = dateParts;
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    // Handle other formats by trying to parse as Date
+    try {
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+    } catch (e) {
+      console.warn('Could not parse date:', dateString);
+    }
+
+    return '';
+  };
+
   useEffect(() => {
     if (task) {
       setFormData({
-        ...task
+        ...task,
+        // Convert date formats for form inputs
+        lastDone: convertToDateInputFormat(task.lastDone),
+        nextDue: convertToDateInputFormat(task.nextDue)
       });
     }
   }, [task]);
@@ -91,12 +118,36 @@ export const TaskEditorModal: React.FC<TaskEditorModalProps> = ({
       });
     }
   };
+  // Helper function to convert YYYY-MM-DD back to MM/DD/YYYY for API
+  const convertFromDateInputFormat = (dateString: string): string => {
+    if (!dateString) return '';
+
+    try {
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+      }
+    } catch (e) {
+      console.warn('Could not parse date for API:', dateString);
+    }
+
+    return dateString; // Return as-is if conversion fails
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       setIsSubmitting(true);
       try {
-        await onSave(formData);
+        // Convert date formats back for API
+        const taskDataForApi = {
+          ...formData,
+          lastDone: convertFromDateInputFormat(formData.lastDone),
+          nextDue: convertFromDateInputFormat(formData.nextDue)
+        };
+
+        console.log('Submitting task data:', taskDataForApi); // Debug log
+        await onSave(taskDataForApi);
         setIsSuccess(true);
         // Close the modal after a short delay to show success state
         setTimeout(() => {
@@ -150,8 +201,10 @@ export const TaskEditorModal: React.FC<TaskEditorModalProps> = ({
                 <option value="Plumbing">Plumbing</option>
                 <option value="Electrical">Electrical</option>
                 <option value="Exterior">Exterior</option>
+                <option value="Painting">Painting</option>
                 <option value="Windows">Windows & Doors</option>
                 <option value="Security">Security & Safety</option>
+                <option value="General">General</option>
               </select>
               {errors.system && <p className="mt-1 text-sm text-red-600">{errors.system}</p>}
             </div>
@@ -161,6 +214,7 @@ export const TaskEditorModal: React.FC<TaskEditorModalProps> = ({
               </label>
               <select name="frequency" value={formData.frequency} onChange={handleChange} className={`w-full px-3 py-2 border ${errors.frequency ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500`}>
                 <option value="">Select frequency</option>
+                <option value="As needed">As needed</option>
                 <option value="Monthly">Monthly</option>
                 <option value="Quarterly">Quarterly</option>
                 <option value="Bi-annual">Bi-annual</option>

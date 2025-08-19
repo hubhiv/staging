@@ -120,6 +120,10 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
   const [activeSystemTab, setActiveSystemTab] = useState<string>('all');
   const [maintenanceFilter, setMaintenanceFilter] = useState<string>('all');
 
+  // State for maintenance schedule sorting
+  const [sortField, setSortField] = useState<string>('');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
   // State for CRUD operations
   const [editHomeProfile, setEditHomeProfile] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -236,7 +240,8 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
   };
 
   const getFilteredTasks = () => {
-    return getFilteredMaintenanceTasks(maintenanceFilter);
+    const filteredTasks = getFilteredMaintenanceTasks(maintenanceFilter);
+    return sortTasks(filteredTasks);
   };
 
   const getStatusColor = (status: string) => {
@@ -247,6 +252,70 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
       case 'completed': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  // Sorting helper functions
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New field, default to ascending
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortTasks = (tasks: any[]) => {
+    if (!sortField) return tasks;
+
+    return [...tasks].sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortField) {
+        case 'task':
+          aValue = a.name?.toLowerCase() || '';
+          bValue = b.name?.toLowerCase() || '';
+          break;
+        case 'system':
+          aValue = a.system?.toLowerCase() || '';
+          bValue = b.system?.toLowerCase() || '';
+          break;
+        case 'frequency':
+          aValue = a.frequency?.toLowerCase() || '';
+          bValue = b.frequency?.toLowerCase() || '';
+          break;
+        case 'lastDone':
+          aValue = new Date(a.lastDone || 0).getTime();
+          bValue = new Date(b.lastDone || 0).getTime();
+          break;
+        case 'nextDue':
+          aValue = new Date(a.nextDue || 0).getTime();
+          bValue = new Date(b.nextDue || 0).getTime();
+          break;
+        case 'status':
+          // Sort by status priority: overdue, upcoming, on-track, completed
+          const statusOrder = { 'overdue': 0, 'upcoming': 1, 'on-track': 2, 'completed': 3 };
+          aValue = statusOrder[a.status as keyof typeof statusOrder] ?? 4;
+          bValue = statusOrder[b.status as keyof typeof statusOrder] ?? 4;
+          break;
+        default:
+          return 0;
+      }
+
+      // Handle string comparison
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const comparison = aValue.localeCompare(bValue);
+        return sortDirection === 'asc' ? comparison : -comparison;
+      }
+
+      // Handle numeric comparison
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
+      }
+
+      return 0;
+    });
   };
 
   const getSystemIcon = (system: string) => {
@@ -633,13 +702,58 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
         {/* Task table */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="grid grid-cols-7 gap-4 p-3 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
-            <div>Task</div>
-            <div>System</div>
-            <div>Frequency</div>
-            <div>Last Done</div>
-            <div>Next Due</div>
-            <div>Status</div>
-            <div>Actions</div>
+            <button
+              className="flex items-center justify-between hover:bg-gray-100 px-2 py-1 rounded transition-colors text-left"
+              onClick={() => handleSort('task')}
+              title="Sort by Task"
+            >
+              <span>Task</span>
+              {sortField === 'task' && (
+                sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              className="flex items-center justify-between hover:bg-gray-100 px-2 py-1 rounded transition-colors text-left"
+              onClick={() => handleSort('system')}
+              title="Sort by System"
+            >
+              <span>System</span>
+              {sortField === 'system' && (
+                sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            <div className="px-2 py-1">Frequency</div>
+            <button
+              className="flex items-center justify-between hover:bg-gray-100 px-2 py-1 rounded transition-colors text-left"
+              onClick={() => handleSort('lastDone')}
+              title="Sort by Last Done"
+            >
+              <span>Last Done</span>
+              {sortField === 'lastDone' && (
+                sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              className="flex items-center justify-between hover:bg-gray-100 px-2 py-1 rounded transition-colors text-left"
+              onClick={() => handleSort('nextDue')}
+              title="Sort by Next Due"
+            >
+              <span>Next Due</span>
+              {sortField === 'nextDue' && (
+                sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              className="flex items-center justify-between hover:bg-gray-100 px-2 py-1 rounded transition-colors text-left"
+              onClick={() => handleSort('status')}
+              title="Sort by Status"
+            >
+              <span>Status</span>
+              {sortField === 'status' && (
+                sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+            <div className="px-2 py-1">Actions</div>
           </div>
 
           {tasksLoading ? (

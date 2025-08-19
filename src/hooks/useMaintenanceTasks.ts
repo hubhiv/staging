@@ -72,6 +72,44 @@ const formatDate = (timestamp?: number): string => {
   return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 };
 
+// Map maintenance schedule status to API status
+const mapMaintenanceStatusToApi = (maintenanceStatus: string): 'todo' | 'scheduled' | 'booked' | 'complete' => {
+  switch (maintenanceStatus) {
+    case 'completed':
+      return 'complete';
+    case 'on-track':
+      return 'booked';
+    case 'upcoming':
+      return 'scheduled';
+    case 'overdue':
+      return 'todo';
+    default:
+      return 'todo';
+  }
+};
+
+// Map frontend system to API provider enum
+const mapSystemToProvider = (system: string): 'Plumbing' | 'HVAC' | 'Painting' | 'Electrical' => {
+  switch (system.toLowerCase()) {
+    case 'plumbing':
+      return 'Plumbing';
+    case 'hvac':
+      return 'HVAC';
+    case 'painting':
+      return 'Painting';
+    case 'electrical':
+      return 'Electrical';
+    case 'exterior':
+      return 'Painting'; // Map exterior to painting as closest match
+    case 'windows & doors':
+      return 'Electrical'; // Map to electrical as closest match
+    case 'security & safety':
+      return 'Electrical'; // Map to electrical as closest match
+    default:
+      return 'HVAC'; // Default fallback
+  }
+};
+
 // Convert API Task to MaintenanceTask for display
 const mapApiTaskToMaintenance = (apiTask: Task): MaintenanceTask => {
   return {
@@ -140,12 +178,14 @@ export const useMaintenanceTasks = (userId: number = 2) => {
       // Map maintenance task data to API format
       const apiTaskData = {
         title: taskData.name || '',
-        description: `Maintenance task: ${taskData.name}`,
-        status: 'todo' as const,
+        description: taskData.notes || `Maintenance task: ${taskData.name}`,
+        status: mapMaintenanceStatusToApi(taskData.status || 'upcoming'),
         priority: taskData.priority || 'medium' as const,
-        assignee_id: userId.toString(),
-        due_date: new Date().toISOString(),
-        provider: taskData.system || 'General'
+        assignee_id: userId, // Fix: Use integer instead of string
+        due_date: taskData.nextDue ? new Date(taskData.nextDue).getTime() : new Date().getTime(), // Fix: Use timestamp and actual due date
+        provider: mapSystemToProvider(taskData.system || ''),
+        provider_type: taskData.system || '',
+        position: 0
       };
 
       const newTask = await TaskService.createTask(apiTaskData);
