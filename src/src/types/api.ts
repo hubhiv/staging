@@ -201,22 +201,32 @@ export interface MaintenanceTaskRequest {
   status: 'upcoming' | 'overdue' | 'on-track' | 'completed';
   notes?: string;
 }
-// Service Providers
+// Service Providers - API Response Interface
 export interface ServiceProvider {
-  id: string;
-  user_id: string;
+  id: number;
+  user_id: number;
   name: string;
   type: string;
   phone: string;
   last_service: string;
   rating: number;
-  created_at: string;
-  updated_at: string;
+  created_at: number;
 }
+
+// Service Providers - Frontend Display Interface (with additional UI fields)
+export interface ServiceProviderDisplay extends ServiceProvider {
+  category?: string; // Alias for type field for backward compatibility
+  email?: string; // Optional field for UI display
+  address?: string; // Optional field for UI display
+  notes?: string; // Optional field for UI display
+  lastService?: string; // Alias for last_service for backward compatibility
+}
+
 export interface ServiceProviderRequest {
   name: string;
   type: string;
   phone: string;
-  last_service: string;
-  rating: number;
+  last_service?: string;
+  rating?: number;
+  user_id: number;
 }

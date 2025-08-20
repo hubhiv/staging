@@ -1,4 +1,4 @@
-import apiClient from './api';
+import { homeApiClient } from './api';
 import { ServiceProvider, ServiceProviderRequest } from '../types/api';
 
 /**
@@ -14,39 +14,35 @@ export const ProviderService = {
   /**
    * Get service providers
    *
-   * API: GET /service-providers
+   * API: GET /service_provider
    * Headers:
-   *   - Authorization: Bearer {token}
    *   - Accept: application/json
-   *
-   * Query Parameters:
-   *   - type: Filter by provider type (optional)
+   *   - Authentication: Not required (per API specification)
    *
    * Response Example (200 OK):
    * [
    *   {
-   *     "id": "prov_12345",
-   *     "user_id": "usr_12345",
-   *     "name": "ABC HVAC Services",
+   *     "id": 1,
+   *     "created_at": 1754432791520,
+   *     "name": "Austin HVAC Pros",
    *     "type": "HVAC",
-   *     "phone": "(555) 123-4567",
-   *     "last_service": "2023-03-22",
-   *     "rating": 4,
-   *     "created_at": "2023-01-15T10:30:45Z",
-   *     "updated_at": "2023-06-22T14:15:22Z"
+   *     "phone": "(512) 555-0123",
+   *     "last_service": "2023-03-14",
+   *     "rating": 5,
+   *     "user_id": 2
    *   },
    *   ...
    * ]
    *
-   * Error Response Example (401 Unauthorized):
-   * {
-   *   "message": "Unauthenticated."
-   * }
+   * Error Response Examples:
+   * - 400: Input Error. Check the request payload for issues
+   * - 401: Unauthorized
+   * - 500: Unexpected error
    *
    * @returns {Promise<ServiceProvider[]>} List of service providers
    */
   getServiceProviders: async (): Promise<ServiceProvider[]> => {
-    const response = await apiClient.get<ServiceProvider[]>('/service-providers');
+    const response = await homeApiClient.get<ServiceProvider[]>('/service_provider');
     return response.data;
   },
   /**
@@ -127,7 +123,7 @@ export const ProviderService = {
    * @returns {Promise<ServiceProvider>} Created provider
    */
   createServiceProvider: async (data: ServiceProviderRequest): Promise<ServiceProvider> => {
-    const response = await apiClient.post<ServiceProvider>('/service-providers', data);
+    const response = await homeApiClient.post<ServiceProvider>('/service_provider', data);
     return response.data;
   },
   /**
@@ -168,8 +164,8 @@ export const ProviderService = {
    * @param {Partial<ServiceProviderRequest>} data - Provider data to update
    * @returns {Promise<ServiceProvider>} Updated provider
    */
-  updateServiceProvider: async (id: string, data: Partial<ServiceProviderRequest>): Promise<ServiceProvider> => {
-    const response = await apiClient.patch<ServiceProvider>(`/service-providers/${id}`, data);
+  updateServiceProvider: async (id: string | number, data: Partial<ServiceProviderRequest>): Promise<ServiceProvider> => {
+    const response = await homeApiClient.patch<ServiceProvider>(`/service_provider/${id}`, data);
     return response.data;
   },
   /**
@@ -193,8 +189,8 @@ export const ProviderService = {
    * @param {string} id - Provider ID
    * @returns {Promise<void>}
    */
-  deleteServiceProvider: async (id: string): Promise<void> => {
-    await apiClient.delete(`/service-providers/${id}`);
+  deleteServiceProvider: async (id: string | number): Promise<void> => {
+    await homeApiClient.delete(`/service_provider/${id}`);
   },
   /**
    * Get provider types for filtering

@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import { Home, Calendar, Phone, ChevronDown, ChevronUp, Plus, Wrench, FileText, X, AlertCircle, DollarSign, MapPin, Clipboard, BarChart, Clock, Thermometer, Droplet, Zap, Edit, Trash2, SquarePen } from 'lucide-react';
-import { HomeProfile as APIHomeProfile } from '../src/types/api';
+import React, { useState, useEffect } from 'react';
+import { Home, Calendar, Phone, ChevronDown, ChevronUp, Plus, Wrench, FileText, X, AlertCircle, DollarSign, MapPin, Clipboard, BarChart, Thermometer, Droplet, Zap, Trash2, SquarePen } from 'lucide-react';
+import { HomeProfile as APIHomeProfile, ServiceProvider as APIServiceProvider } from '../src/types/api';
 import { HomeSystemsSection } from './HomeSystemsSection';
 import { EditHomeProfileModal } from './EditHomeProfileModal';
 import { ConfirmDialog } from './ConfirmDialog';
 import { TaskEditorModal } from './TaskEditorModal';
+import { ServiceProviderModal, ServiceProviderFormData } from './ServiceProviderModal';
 import { useMaintenanceTasks } from '../hooks/useMaintenanceTasks';
+import { ProviderService } from '../src/services/providerService';
 
 // Maintenance Task Interface (keeping local interface for compatibility)
 interface MaintenanceTask {
@@ -19,17 +21,21 @@ interface MaintenanceTask {
   notes?: string;
 }
 
-// Service Provider Interface
+// Service Provider Interface - Extended for UI compatibility
 interface ServiceProvider {
-  id: string;
+  id: string | number;
   name: string;
-  category: string;
+  type: string;
+  category?: string; // Alias for type for backward compatibility
   phone: string;
-  email: string;
-  address: string;
+  email?: string; // Optional UI field
+  address?: string; // Optional UI field
   rating: number;
-  notes?: string;
-  lastService?: string;
+  notes?: string; // Optional UI field
+  lastService?: string; // Alias for last_service
+  last_service?: string; // API field
+  user_id?: number;
+  created_at?: number;
 }
 
 // Circular Progress Component
@@ -156,51 +162,39 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
 
   // Maintenance tasks now loaded via useMaintenanceTasks hook
 
-  // Sample service providers data
-  const [serviceProviders, setServiceProviders] = useState<ServiceProvider[]>([
-    {
-      id: 'provider-1',
-      name: 'Austin HVAC Pros',
-      category: 'HVAC',
-      phone: '(512) 555-0123',
-      email: 'service@austinhvacpros.com',
-      address: '123 Main St, Austin, TX 78701',
-      rating: 4.8,
-      notes: 'Excellent service, very reliable for emergency calls',
-      lastService: '2023-03-14'
-    },
-    {
-      id: 'provider-2',
-      name: 'Reliable Plumbing Co',
-      category: 'Plumbing',
-      phone: '(512) 555-0456',
-      email: 'info@reliableplumbing.com',
-      address: '456 Oak Ave, Austin, TX 78702',
-      rating: 4.5,
-      notes: 'Great for water heater maintenance and repairs',
-      lastService: '2023-01-19'
-    },
-    {
-      id: 'provider-3',
-      name: 'Bright Electric Solutions',
-      category: 'Electrical',
-      phone: '(512) 555-0789',
-      email: 'contact@brightelectric.com',
-      address: '789 Pine St, Austin, TX 78703',
-      rating: 4.9,
-      notes: 'Licensed electricians, excellent panel work'
-    },
-    {
-      id: 'provider-4',
-      name: 'Green Lawn Care',
-      category: 'Landscaping',
-      phone: '(512) 555-0321',
-      email: 'hello@greenlawncare.com',
-      address: '321 Cedar Ln, Austin, TX 78704',
-      rating: 4.3,
-      notes: 'Weekly lawn service and seasonal cleanup'
-    }
-  ]);
+  // Service providers data - loaded from API
+  const [serviceProviders, setServiceProviders] = useState<ServiceProvider[]>([]);
+  const [isLoadingProviders, setIsLoadingProviders] = useState(true);
+  const [providerError, setProviderError] = useState<string | null>(null);
+
+  // Fetch service providers on component mount
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        setIsLoadingProviders(true);
+        setProviderError(null);
+        const providers = await ProviderService.getServiceProviders();
+
+        // Transform API data to match UI expectations
+        const transformedProviders: ServiceProvider[] = providers.map(provider => ({
+          ...provider,
+          id: provider.id.toString(), // Convert to string for UI compatibility
+          category: provider.type, // Add category alias for backward compatibility
+          lastService: provider.last_service, // Add lastService alias
+          // Optional UI fields will be undefined but that's okay
+        }));
+
+        setServiceProviders(transformedProviders);
+      } catch (error) {
+        console.error('Failed to fetch service providers:', error);
+        setProviderError('Failed to load service providers. Please try again.');
+      } finally {
+        setIsLoadingProviders(false);
+      }
+    };
+
+    fetchProviders();
+  }, []);
 
   // Display data from API homeProfile or fallback values
   const displayProfile = homeProfile ? {
@@ -386,21 +380,78 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
     setProviderToDelete(providerId);
   };
 
-  const handleConfirmProviderDelete = () => {
-    if (providerToDelete) {
-      setServiceProviders(prev => prev.filter(provider => provider.id !== providerToDelete));
+  const handleConfirmProviderDelete = async () => {
+    if (!providerToDelete) return;
+
+    try {
+      // Delete the provider via API
+      await ProviderService.deleteServiceProvider(providerToDelete);
+
+      // Remove from local state for immediate UI update
+      setServiceProviders(prev => prev.filter(provider => provider.id.toString() !== providerToDelete));
+
+      // Close the confirmation modal
+      setProviderToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete service provider:', error);
+      // TODO: Show error message to user
+      // For now, we'll still close the modal but the provider won't be deleted
       setProviderToDelete(null);
     }
   };
 
-  const handleSaveProvider = async (provider: ServiceProvider) => {
-    if (provider.id && serviceProviders.find(p => p.id === provider.id)) {
-      // Update existing provider
-      setServiceProviders(prev => prev.map(p => p.id === provider.id ? provider : p));
-    } else {
-      // Add new provider
-      const newProvider = { ...provider, id: `provider-${Date.now()}` };
-      setServiceProviders(prev => [...prev, newProvider]);
+  const handleSaveProvider = async (providerData: ServiceProviderFormData) => {
+    try {
+      // Get current user ID (you may need to get this from auth context)
+      const userId = 3; // Using the test user ID for now
+
+      // Prepare the request data
+      const requestData = {
+        name: providerData.name,
+        type: providerData.type,
+        phone: providerData.phone,
+        last_service: providerData.last_service || undefined,
+        rating: providerData.rating || undefined,
+        user_id: userId
+      };
+
+      let updatedProvider: ServiceProvider;
+
+      if (selectedProvider && selectedProvider.id) {
+        // UPDATE existing provider
+        updatedProvider = await ProviderService.updateServiceProvider(selectedProvider.id, requestData);
+
+        // Transform API response to match UI expectations
+        const transformedProvider: ServiceProvider = {
+          ...updatedProvider,
+          id: updatedProvider.id.toString(),
+          category: updatedProvider.type,
+          lastService: updatedProvider.last_service,
+        };
+
+        // Update in local state for immediate UI update
+        setServiceProviders(prev => prev.map(p =>
+          p.id.toString() === selectedProvider.id.toString() ? transformedProvider : p
+        ));
+      } else {
+        // CREATE new provider
+        updatedProvider = await ProviderService.createServiceProvider(requestData);
+
+        // Transform API response to match UI expectations
+        const transformedProvider: ServiceProvider = {
+          ...updatedProvider,
+          id: updatedProvider.id.toString(),
+          category: updatedProvider.type,
+          lastService: updatedProvider.last_service,
+        };
+
+        // Add to local state for immediate UI update
+        setServiceProviders(prev => [...prev, transformedProvider]);
+      }
+
+    } catch (error) {
+      console.error('Failed to save service provider:', error);
+      throw error; // Re-throw so the modal can handle the error
     }
   };
 
@@ -428,7 +479,11 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
             <h2 className="text-2xl font-bold">Home Dashboard</h2>
           </div>
           <div className="flex space-x-2 mt-2 sm:mt-0">
-
+            {/* Beta Notice */}
+            <div className="bg-orange-100 border border-orange-200 rounded-lg px-3 py-1 flex items-center">
+              <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
+              <span className="text-orange-700 text-sm font-medium">Home Dashboard Coming Soon</span>
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
@@ -552,9 +607,16 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
           </div>
           {/* Property Documents - Enhanced with badges and dates */}
           <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="text-lg font-semibold mb-3 border-b pb-2 flex items-center">
-              <FileText className="w-5 h-5 text-blue-600 mr-2" />
-              Property Documents
+            <h3 className="text-lg font-semibold mb-3 border-b pb-2 flex items-center justify-between">
+              <div className="flex items-center">
+                <FileText className="w-5 h-5 text-blue-600 mr-2" />
+                Property Documents
+              </div>
+              {/* Beta Notice */}
+              <div className="bg-orange-100 border border-orange-200 rounded-lg px-2 py-1 flex items-center">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
+                <span className="text-orange-700 text-xs font-medium">Coming Soon</span>
+              </div>
             </h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between p-2 hover:bg-blue-50 rounded-md transition-colors group">
@@ -847,7 +909,25 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
       >
         {/* Service providers grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {serviceProviders.length === 0 ? (
+          {isLoadingProviders ? (
+            <div className="col-span-full p-8 text-center text-gray-500">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Loading Service Providers</h3>
+              <p className="text-gray-600">Please wait while we fetch your providers...</p>
+            </div>
+          ) : providerError ? (
+            <div className="col-span-full p-8 text-center text-red-500">
+              <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Providers</h3>
+              <p className="text-gray-600 mb-4">{providerError}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : serviceProviders.length === 0 ? (
             <div className="col-span-full p-8 text-center text-gray-500">
               <Wrench className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Service Providers</h3>
@@ -881,7 +961,7 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
                       <SquarePen className="w-4 h-4 text-gray-600" />
                     </button>
                     <button
-                      onClick={() => handleDeleteProviderClick(provider.id)}
+                      onClick={() => handleDeleteProviderClick(provider.id.toString())}
                       className="p-1 rounded-full hover:bg-red-100 transition-colors"
                       title={`Delete ${provider.name}`}
                       aria-label={`Delete ${provider.name}`}
@@ -896,14 +976,18 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
                     <Phone className="w-4 h-4 text-gray-400 mr-2" />
                     <span className="text-gray-700">{provider.phone}</span>
                   </div>
-                  <div className="flex items-center">
-                    <FileText className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className="text-gray-700">{provider.email}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <MapPin className="w-4 h-4 text-gray-400 mr-2" />
-                    <span className="text-gray-700">{provider.address}</span>
-                  </div>
+                  {provider.email && (
+                    <div className="flex items-center">
+                      <FileText className="w-4 h-4 text-gray-400 mr-2" />
+                      <span className="text-gray-700">{provider.email}</span>
+                    </div>
+                  )}
+                  {provider.address && (
+                    <div className="flex items-center">
+                      <MapPin className="w-4 h-4 text-gray-400 mr-2" />
+                      <span className="text-gray-700">{provider.address}</span>
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                     <div className="flex items-center">
@@ -1070,6 +1154,14 @@ export const MyHomeViewClean: React.FC<MyHomeViewProps> = ({ userId, homeProfile
         onClose={() => setIsTaskEditorOpen(false)}
         task={selectedTask}
         onSave={handleSaveTask}
+      />
+
+      {/* Service Provider Modal */}
+      <ServiceProviderModal
+        isOpen={isProviderEditorOpen}
+        onClose={() => setIsProviderEditorOpen(false)}
+        provider={selectedProvider}
+        onSave={handleSaveProvider}
       />
     </div>
   );
